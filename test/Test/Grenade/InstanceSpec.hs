@@ -12,12 +12,9 @@ import Grenade.Utils.Accuracy
 
 import Test.Validity
 import Test.Validity.Aeson
-import Test.Validity.Cereal
 
 tests :: IO Bool
-tests = do
-    hspec spec
-    pure True
+tests = hspec spec >> pure True
 
 spec :: Spec
 spec = do
