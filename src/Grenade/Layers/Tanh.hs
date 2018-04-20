@@ -18,6 +18,7 @@ import           Data.Serialize
 import           Data.Singletons
 
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 
 -- | A Tanh layer.
 --   A layer which can act between any shape of the same dimension, performing a tanh function.
@@ -40,3 +41,7 @@ instance (a ~ b, SingI a) => Layer Tanh a b where
 
 tanh' :: (Floating a) => a -> a
 tanh' t = 1 - s ^ (2 :: Int)  where s = tanh t
+
+instance SumSquaredParams Tanh where
+    getSumSquaredParams _layer = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty

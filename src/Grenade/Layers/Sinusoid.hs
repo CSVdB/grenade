@@ -18,6 +18,7 @@ import           Data.Serialize
 import           Data.Singletons
 
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 
 -- | A Sinusoid layer.
 --   A layer which can act between any shape of the same dimension, performing a sin function.
@@ -37,3 +38,7 @@ instance (a ~ b, SingI a) => Layer Sinusoid a b where
   type Tape Sinusoid a b = S a
   runForwards _ a = (a, sin a)
   runBackwards _ a g = ((), cos a * g)
+
+instance SumSquaredParams Sinusoid where
+    getSumSquaredParams _layer = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty

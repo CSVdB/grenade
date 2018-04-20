@@ -42,6 +42,7 @@ import           Numeric.LinearAlgebra.Static hiding ((|||), build, toRows)
 import           Grenade.Core
 import           Grenade.Layers.Internal.Convolution
 import           Grenade.Layers.Internal.Update
+import           Grenade.Utils.SumSquaredParams
 
 -- | A Deconvolution layer for a neural network.
 --   This uses the im2col Convolution trick popularised by Caffe.
@@ -282,3 +283,14 @@ instance ( KnownNat kernelRows
 
         xW = col2vid 1 1 1 1 ix iy dW
     in  (Deconvolution' kN, S3D . fromJust . create $ xW)
+
+instance ( KnownNat channels
+         , KnownNat filters
+         , KnownNat kernelRows
+         , KnownNat kernelColumns
+         , KnownNat strideRows
+         , KnownNat strideColumns
+         , KnownNat (kernelRows * kernelColumns * filters)
+         ) => SumSquaredParams (Deconvolution channels filters kernelRows kernelColumns strideRows strideColumns) where
+  getSumSquaredParams (Deconvolution w _) = sumSquaredParamsFromMatrix w
+  getSumSquaredParamsDelta _proxy (Deconvolution' w) = sumSquaredParamsFromMatrix w

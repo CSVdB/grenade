@@ -19,6 +19,7 @@ import           Data.Serialize
 import           Data.Singletons
 
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 
 -- | A Logit layer.
 --
@@ -55,3 +56,7 @@ instance Serialize Logit where
 
 sigmoid :: Floating a => a -> a
 sigmoid x = 1 / (1 + exp (-x))
+
+instance SumSquaredParams Logit where
+    getSumSquaredParams _layer = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty

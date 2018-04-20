@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE RankNTypes            #-}
@@ -29,6 +30,8 @@ import           GHC.TypeLits
 import           Grenade.Core
 
 import           Numeric.LinearAlgebra.Static ( row, (===), splitRows, unrow, (#), split, R )
+
+import           Grenade.Utils.SumSquaredParams
 
 -- | A Concatentating Layer.
 --
@@ -131,3 +134,8 @@ instance ( SingI i
 instance (Serialize a, Serialize b) => Serialize (Concat sa a sb b) where
   put (Concat a b) = put a *> put b
   get = Concat <$> get <*> get
+
+instance (SumSquaredParams x, SumSquaredParams y) => SumSquaredParams (Concat m x n y) where
+    getSumSquaredParams (Concat x y) = getSumSquaredParams x `mappend` getSumSquaredParams y
+    getSumSquaredParamsDelta _proxy (gradX, gradY) =
+        getSumSquaredParamsDelta (Proxy @x) gradX `mappend` getSumSquaredParamsDelta (Proxy @y) gradY

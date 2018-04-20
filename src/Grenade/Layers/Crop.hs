@@ -23,6 +23,7 @@ import           Data.Singletons.TypeLits
 import           GHC.TypeLits
 
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 import           Grenade.Layers.Internal.Pad
 
 import           Numeric.LinearAlgebra (konst, subMatrix, diagBlock)
@@ -121,3 +122,7 @@ instance ( KnownNat cropLeft
         m     = extract gradient
         padded = pad ch padl padt padr padb outr outc inr inc m
     in  ((), S3D . fromJust . create $ padded)
+
+instance SumSquaredParams (Crop l t r b) where
+    getSumSquaredParams _layer = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty

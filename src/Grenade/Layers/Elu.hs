@@ -17,6 +17,7 @@ import           Data.Serialize
 
 import           GHC.TypeLits
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 
 import qualified Numeric.LinearAlgebra.Static as LAS
 
@@ -65,3 +66,7 @@ instance (KnownNat i, KnownNat j, KnownNat k) => Layer Elu ('D3 i j k) ('D3 i j 
   runBackwards _ (S3D y) (S3D dEdy) = ((), S3D (elu' y * dEdy))
     where
       elu' = LAS.dmmap (\a -> if a <= 0 then exp a else 1)
+
+instance SumSquaredParams Elu where
+    getSumSquaredParams _layer = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty
