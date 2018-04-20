@@ -17,6 +17,7 @@ module Grenade.Layers.Trivial (
 import           Data.Serialize
 
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 
 -- | A Trivial layer.
 --
@@ -38,3 +39,7 @@ instance (a ~ b) => Layer Trivial a b where
   type Tape Trivial a b = ()
   runForwards _ a = ((), a)
   runBackwards _ _ y = ((), y)
+
+instance SumSquaredParams Trivial where
+    getSumSquaredParams _layer = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty

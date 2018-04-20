@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts      #-}
@@ -24,6 +25,7 @@ import           Data.Serialize
 import           Data.Singletons
 
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 
 -- | A Merging layer.
 --
@@ -59,3 +61,9 @@ instance (SingI i, SingI o, Layer x i o, Layer y i o) => Layer (Merge x y) i o w
 instance (Serialize a, Serialize b) => Serialize (Merge a b) where
   put (Merge a b) = put a *> put b
   get = Merge <$> get <*> get
+
+instance (SumSquaredParams x, SumSquaredParams y) => SumSquaredParams (Merge x y) where
+    getSumSquaredParams (Merge x y) = getSumSquaredParams x `mappend` getSumSquaredParams y
+    getSumSquaredParamsDelta _proxy (gradX, gradY) =
+        getSumSquaredParamsDelta (Proxy @x) gradX `mappend`
+        getSumSquaredParamsDelta (Proxy @y) gradY

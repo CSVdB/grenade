@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts      #-}
@@ -39,6 +40,7 @@ import           Data.Serialize
 import           Grenade.Core.Layer
 import           Grenade.Core.LearningParameters
 import           Grenade.Core.Shape
+import           Grenade.Utils.SumSquaredParams
 
 -- | Type of a network.
 --
@@ -190,3 +192,15 @@ instance (CreatableNetwork sublayers subshapes, i ~ (Head subshapes), o ~ (Last 
   type Tape (Network sublayers subshapes) i o = Tapes sublayers subshapes
   runForwards  = runNetwork
   runBackwards = runGradient
+
+instance SingI i => SumSquaredParams (Network '[] '[i])  where
+    getSumSquaredParams NNil = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty
+
+instance (SumSquaredParams x, SingI i, SingI h, Layer x i h, SumSquaredParams (Network xs (h ': hs)),
+    CreatableNetwork xs (h ': hs))
+    => SumSquaredParams (Network (x ': xs) (i ': (h ': hs)))  where
+    getSumSquaredParams (layer :~> network) =
+        getSumSquaredParams layer `mappend` getSumSquaredParams network
+    getSumSquaredParamsDelta _proxy (gradLayer :/> gradNetwork) =
+        getSumSquaredParamsDelta (Proxy @x) gradLayer `mappend` getSumSquaredParamsDelta (Proxy @(Network xs (h ': hs))) gradNetwork

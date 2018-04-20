@@ -38,6 +38,7 @@ import           Numeric.LinearAlgebra.Static hiding ((|||), build, toRows)
 import           Grenade.Core
 import           Grenade.Layers.Internal.Convolution
 import           Grenade.Layers.Internal.Update
+import           Grenade.Utils.SumSquaredParams
 
 -- | A convolution layer for a neural network.
 --   This uses the im2col convolution trick popularised by Caffe, which essentially turns the
@@ -284,3 +285,14 @@ instance ( KnownNat kernelRows
 
   runBackwards c tape (S2D grads) =
     runBackwards c tape (S3D grads :: S ('D3 outputRows outputCols 1))
+
+instance ( KnownNat channels
+         , KnownNat filters
+         , KnownNat kernelRows
+         , KnownNat kernelColumns
+         , KnownNat strideRows
+         , KnownNat strideColumns
+         , KnownNat (kernelRows * kernelColumns * channels)
+         ) => SumSquaredParams (Convolution channels filters kernelRows kernelColumns strideRows strideColumns) where
+  getSumSquaredParams (Convolution w _) = sumSquaredParamsFromMatrix w
+  getSumSquaredParamsDelta _proxy (Convolution' w) = sumSquaredParamsFromMatrix w

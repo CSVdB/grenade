@@ -23,6 +23,8 @@ import           Grenade.Core
 
 import           Grenade.Layers.Internal.Update
 
+import           Grenade.Utils.SumSquaredParams
+
 -- | A basic fully connected (or inner product) neural network layer.
 data FullyConnected i o = FullyConnected
                         !(FullyConnected' i o)   -- Neuron weights
@@ -81,3 +83,9 @@ randomFullyConnected = do
         bm = konst 0
         mm = konst 0
     return $ FullyConnected (FullyConnected' wB wN) (FullyConnected' bm mm)
+
+instance (KnownNat i, KnownNat o) => SumSquaredParams (FullyConnected i o) where
+    getSumSquaredParams (FullyConnected (FullyConnected' biases activations) _momenta) =
+        sumSquaredParamsFromVector biases `mappend` sumSquaredParamsFromMatrix activations
+    getSumSquaredParamsDelta _layer (FullyConnected' biasDeltas actiDeltas) =
+        sumSquaredParamsFromVector biasDeltas `mappend` sumSquaredParamsFromMatrix actiDeltas

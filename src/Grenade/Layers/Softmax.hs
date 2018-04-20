@@ -20,6 +20,7 @@ import           Data.Serialize
 
 import           GHC.TypeLits
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 
 import           Numeric.LinearAlgebra.Static as LAS
 
@@ -62,3 +63,7 @@ softmax' x grad =
   in  g #> grad
     where
   sm = softmax x
+
+instance SumSquaredParams Softmax where
+    getSumSquaredParams _layer = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty

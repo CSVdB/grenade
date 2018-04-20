@@ -23,6 +23,7 @@ import           Numeric.LinearAlgebra.Static
 import           Numeric.LinearAlgebra.Data as LA ( flatten )
 
 import           Grenade.Core
+import           Grenade.Utils.SumSquaredParams
 
 -- | Reshape Layer
 --
@@ -78,3 +79,7 @@ instance Serialize Reshape where
 fromJust' :: Maybe x -> x
 fromJust' (Just x) = x
 fromJust' Nothing  = error $ "Reshape error: data shape couldn't be converted."
+
+instance SumSquaredParams Reshape where
+    getSumSquaredParams _layer = mempty
+    getSumSquaredParamsDelta _proxy _gradient = mempty
