@@ -106,6 +106,8 @@ library
                        Grenade.Recurrent.Layers.ConcatRecurrent
                        Grenade.Recurrent.Layers.LSTM
 
+                       Grenade.Run
+
                        Grenade.Utils.OneHot
                        Grenade.Utils.Accuracy
 
