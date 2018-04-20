@@ -110,6 +110,7 @@ library
 
                        Grenade.Utils.OneHot
                        Grenade.Utils.Accuracy
+                       Grenade.Utils.SumSquaredParams
 
                        Grenade.Train.DataSet
                        Grenade.Train.Test
