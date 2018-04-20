@@ -114,6 +114,8 @@ library
                        Grenade.Train.DataSet
                        Grenade.Train.Test
                        Grenade.Train.Network
+                       Grenade.Train.LearningParameters
+                       Grenade.Train.LearningParameters.Internal
 
   includes:            cbits/im2col.h
                        cbits/gradient_descent.h
@@ -140,6 +142,8 @@ test-suite test
                        Test.Hedgehog.TypeLits
 
                        Test.Grenade.Network
+                       Test.Grenade.Gen
+                       Test.Grenade.InstanceSpec
                        Test.Grenade.Layers.Convolution
                        Test.Grenade.Layers.FullyConnected
                        Test.Grenade.Layers.Nonlinear
@@ -157,9 +161,13 @@ test-suite test
 
   build-depends:
                        base                            >= 4.8         && < 5
+                     , genvalidity
+                     , genvalidity-hspec
+                     , genvalidity-hspec-aeson
                      , grenade
                      , hedgehog                        >= 0.5         && < 0.6
                      , hmatrix
+                     , hspec
                      , mtl
                      , singletons
                      , text                            == 1.2.*
@@ -170,6 +178,7 @@ test-suite test
                      , random
                      , ad
                      , reflection
+                     , QuickCheck
                      , vector
 
 
