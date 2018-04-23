@@ -10,6 +10,7 @@ module Grenade.Run
 
 import Grenade.Train.Network
 import Grenade.Train.DataSet
+import Grenade.Utils.SumSquaredParams
 
 import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Last, Head)
@@ -20,7 +21,8 @@ import Control.Monad
 
 run
     :: forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape)
-    . (SingI o, i ~ Head shapes, o ~ Last shapes)
+    . (SingI o, i ~ Head shapes, o ~ Last shapes,
+       SumSquaredParams (Network layers shapes))
     => Int
     -> LearningParameters
     -> IO (Network layers shapes)

@@ -17,10 +17,14 @@ module Grenade (
     -- * Example usage
     -- $example
 
+  , module Grenade.Train.DataSet
+  , module Grenade.Run
   ) where
 
 import           Grenade.Core
 import           Grenade.Layers
+import           Grenade.Train.DataSet
+import           Grenade.Run
 
 {- $library
 Grenade is a purely functional deep learning library.
