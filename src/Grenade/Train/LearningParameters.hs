@@ -30,9 +30,8 @@ getHyperParamInfo
     -> Network layers shapes
     -> DataSet i o
     -> DataSet i o
-    -> DataSet i o
     -> HyperParamInfo
-getHyperParamInfo 0 params _ _ _ _ = initHyperParamInfo params
-getHyperParamInfo n params net0 trainSet valSet testSet =
-    let (net, iterRunInfo) = getNetAndRunInfo params trainSet valSet testSet net0
-    in updateHyperParamInfo iterRunInfo $ getHyperParamInfo (n - 1) params net trainSet valSet testSet
+getHyperParamInfo 0 params _ _ _ = initHyperParamInfo params
+getHyperParamInfo n params net0 trainSet valSet =
+    let (net, iterRunInfo) = getNetAndRunInfo params trainSet valSet net0
+    in updateHyperParamInfo iterRunInfo $ getHyperParamInfo (n - 1) params net trainSet valSet

@@ -48,7 +48,6 @@ updateHyperParamInfo info HyperParamInfo {..} = HyperParamInfo param $ info : ru
 data RunInfo = RunInfo
     { trainAccuracy :: Accuracy
     , validationAccuracy :: Accuracy
-    , testAccuracy :: Accuracy
     , sizeOfWeights :: WeightSize
     , changeOfWeights :: WeightSize
     } deriving (Show, Eq, Generic)
@@ -63,7 +62,6 @@ prettyPrintRunInfo :: MonadIO m => RunInfo -> m ()
 prettyPrintRunInfo RunInfo {..} = liftIO $ traverse_ putStrLn
         [ showAccuracy "train" trainAccuracy
         , showAccuracy "validation" validationAccuracy
-        , showAccuracy "test" testAccuracy
         , showSizeOfWeights sizeOfWeights
         , showChangeOfWeights changeOfWeights
         ]

@@ -20,7 +20,8 @@ instance GenValid LearningParameters where
     genValid = do
         rate <- genValid `suchThat` (> 0)
         momentum <- genValid `suchThat` (>= 0)
-        LearningParameters rate momentum <$> genValid `suchThat` (>= 0)
+        regulariser <- genValid `suchThat` (>= 0)
+        LearningParameters rate momentum regulariser <$> choose (0,1)
 
 instance GenUnchecked Accuracy
 
@@ -35,7 +36,7 @@ instance GenValid WeightSize where
 instance GenUnchecked RunInfo
 
 instance GenValid RunInfo where
-    genValid = RunInfo <$> genValid <*> genValid <*> genValid <*> genValid <*> genValid
+    genValid = RunInfo <$> genValid <*> genValid <*> genValid <*> genValid
 
 instance GenUnchecked HyperParamInfo
 
