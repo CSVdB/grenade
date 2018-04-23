@@ -163,7 +163,7 @@ test-suite test
   build-depends:
                        base                            >= 4.8         && < 5
                      , genvalidity
-                     , genvalidity-hspec
+                     , genvalidity-hspec               >= 0.6
                      , genvalidity-hspec-aeson
                      , grenade
                      , hedgehog                        >= 0.5         && < 0.6
