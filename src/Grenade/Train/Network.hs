@@ -120,7 +120,7 @@ runIterationAndGetChanges ::
     => HyperParams
     -> DataSet i o
     -> Network layers shapes
-    -> (Network layers shapes, WeightSize)
+    -> (Network layers shapes, PositiveDouble)
 runIterationAndGetChanges _ [] _ =
     error "The training set used in runIteration is empty"
 runIterationAndGetChanges params (x:xs) net0 =
@@ -142,7 +142,7 @@ trainAndGetChanges ::
     => HyperParams
     -> DataPoint i o
     -> Network layers shapes
-    -> (Network layers shapes, WeightSize)
+    -> (Network layers shapes, PositiveDouble)
 trainAndGetChanges HyperParams {..} (inpt, outpt) net0 =
     let grad = backPropagate net0 inpt outpt
         proxy = Proxy @(Network layers shapes)

@@ -29,11 +29,6 @@ instance GenUnchecked Accuracy
 instance GenValid Accuracy where
     genValid = fromMaybe <$> genValid <*> (accuracyM <$> choose (0, 1))
 
-instance GenUnchecked WeightSize
-
-instance GenValid WeightSize where
-    genValid = fromMaybe <$> genValid <*> (weightSize . abs <$> genValid)
-
 instance GenUnchecked RunInfo
 
 instance GenValid RunInfo where

@@ -51,6 +51,7 @@ library
                      , primitive                       >= 0.6         && < 0.7
                      , QuickCheck
                      , singletons                      >= 2.1         && < 2.4
+                     , time
                      , validity
                      , vector                          >= 0.11        && < 0.13
 

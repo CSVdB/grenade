@@ -2,6 +2,7 @@ module Grenade.Utils.PositiveDouble
     ( PositiveDouble
     , positiveToDouble
     , pMultiply
+    , constructPositiveDouble
     ) where
 
 import Grenade.Utils.PositiveDouble.Internal

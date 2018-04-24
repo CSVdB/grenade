@@ -29,8 +29,6 @@ spec = do
     jsonSpecOnValid @HyperParamInfo
     genValidSpec @RunInfo
     jsonSpecOnValid @RunInfo
-    genValidSpec @WeightSize
-    jsonSpecOnValid @WeightSize
     genValidSpec @PositiveDouble
     jsonSpecOnValid @PositiveDouble
     genValidSpec @HyperParamInfo
