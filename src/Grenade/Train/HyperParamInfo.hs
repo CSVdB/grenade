@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -9,6 +10,7 @@ module Grenade.Train.HyperParamInfo
     , Accuracy
     , accuracyM
     , getHyperParamInfo
+    , getAccuracy
     ) where
 
 import Grenade.Core
@@ -27,12 +29,15 @@ getHyperParamInfo
     . (SingI o, i ~ Head shapes, o ~ Last shapes,
         SumSquaredParams (Network layers shapes))
     => Int
-    -> HyperParams
     -> Network layers shapes
     -> DataSet i o
     -> DataSet i o
+    -> HyperParams
     -> HyperParamInfo
-getHyperParamInfo 0 params _ _ _ = initHyperParamInfo params
-getHyperParamInfo n params net0 trainSet valSet =
+getHyperParamInfo 0 _ _ _ params = initHyperParamInfo params
+getHyperParamInfo n net0 trainSet valSet params =
     let (net, iterRunInfo) = getNetAndRunInfo params trainSet valSet net0
-    in updateHyperParamInfo iterRunInfo $ getHyperParamInfo (n - 1) (decay params) net trainSet valSet
+    in updateHyperParamInfo iterRunInfo $ getHyperParamInfo (n - 1) net trainSet valSet $ decay params
+
+getAccuracy :: HyperParamInfo -> Accuracy
+getAccuracy HyperParamInfo {..} = validationAccuracy $ head runInfo

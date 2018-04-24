@@ -8,6 +8,7 @@ module Grenade.Train.HyperParams
     , decay
     , DecayFactor
     , constructDecayFactor
+    , dMultiply
     ) where
 
 import Grenade.Core.LearningParameters
@@ -62,6 +63,9 @@ instance Validity DecayFactor where
             [ 0 < x <?@> "A decay factor is strictly positive"
             , x < 1 <?@> "A decay factor is strictly smaller than 1"
             ]
+
+dMultiply :: PositiveDouble -> DecayFactor -> Maybe DecayFactor
+dMultiply (PositiveDouble x) (DecayFactor y) = constructDecayFactor $ x * y
 
 constructDecayFactor :: Double -> Maybe DecayFactor
 constructDecayFactor = constructValid . DecayFactor

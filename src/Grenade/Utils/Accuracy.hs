@@ -16,7 +16,7 @@ import Control.Monad.Catch
 
 newtype Accuracy =
     Accuracy Double
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Generic, Ord)
 
 data AccuracyOutOfBounds =
     AccuracyOutOfBounds
