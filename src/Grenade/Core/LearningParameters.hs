@@ -5,42 +5,44 @@ Copyright   : (c) Huw Campbell, 2016-2017
 License     : BSD2
 Stability   : experimental
 -}
-
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Grenade.Core.LearningParameters (
+module Grenade.Core.LearningParameters
   -- | This module contains learning algorithm specific
   --   code. Currently, this module should be considered
   --   unstable, due to issue #26.
+    ( LearningParameters(..)
+    , createLearningParameters
+    , positiveToDouble
+    , PositiveDouble
+    ) where
 
-    LearningParameters (..)
-  ) where
+import Grenade.Utils.PositiveDouble
+import Grenade.Utils.PositiveDouble.Internal
 
 import GHC.Generics
 
-import Data.Aeson (ToJSON, FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 
 import Data.Validity
 
 -- | Learning parameters for stochastic gradient descent.
-data LearningParameters = LearningParameters {
-    learningRate :: Double
-  , learningMomentum :: Double
-  , learningRegulariser :: Double
-  , learningDecayFactor :: Double -- rate(i) = rate * decayFactor^i, where rate*(i) is the rate during iteration i
-  } deriving (Eq, Show, Generic)
+data LearningParameters = LearningParameters
+    { learningRate :: PositiveDouble
+    , learningMomentum :: PositiveDouble
+    , learningRegulariser :: PositiveDouble
+    } deriving (Eq, Show, Generic)
 
 instance ToJSON LearningParameters
 
 instance FromJSON LearningParameters
 
-instance Validity LearningParameters where
-    validate LearningParameters {..} =
-        mconcat
-            [ learningRate > 0 <?@> "The learning rate is strictly positive"
-            , learningMomentum >= 0 <?@> "The momentum parameter is positive"
-            , learningRegulariser >= 0 <?@> "The regulariser is positive"
-            , learningDecayFactor > 0 <?@> "The decay rate is strictly positive"
-            , learningDecayFactor < 1 <?@> "The decay rate is strictly smaller than 1"
-            ]
+instance Validity LearningParameters
+
+createLearningParameters ::
+       Double -> Double -> Double -> Either String LearningParameters
+createLearningParameters rate momentum regulariser =
+    LearningParameters <$> prettyValidation (PositiveDouble rate) <*>
+    prettyValidation (PositiveDouble momentum) <*>
+    prettyValidation (PositiveDouble regulariser)

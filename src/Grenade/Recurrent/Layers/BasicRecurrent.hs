@@ -56,10 +56,13 @@ instance (KnownNat i, KnownNat o, KnownNat (i + o)) => UpdateLayer (BasicRecurre
   type Gradient (BasicRecurrent i o) = (BasicRecurrent' i o)
 
   runUpdate LearningParameters {..} (BasicRecurrent oldBias oldBiasMomentum oldActivations oldMomentum) (BasicRecurrent' biasGradient activationGradient) =
-    let newBiasMomentum = konst learningMomentum * oldBiasMomentum - konst learningRate * biasGradient
+    let pMomentum = positiveToDouble learningMomentum
+        pRate = positiveToDouble learningRate
+        pRegulariser = positiveToDouble learningRegulariser
+        newBiasMomentum = konst pMomentum * oldBiasMomentum - konst pRate * biasGradient
         newBias         = oldBias + newBiasMomentum
-        newMomentum     = konst learningMomentum * oldMomentum - konst learningRate * activationGradient
-        regulariser     = konst (learningRegulariser * learningRate) * oldActivations
+        newMomentum     = konst pMomentum * oldMomentum - konst pRate * activationGradient
+        regulariser     = konst (pRegulariser * pRate) * oldActivations
         newActivations  = oldActivations + newMomentum - regulariser
     in BasicRecurrent newBias newBiasMomentum newActivations newMomentum
 

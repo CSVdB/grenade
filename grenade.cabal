@@ -111,12 +111,15 @@ library
                        Grenade.Utils.OneHot
                        Grenade.Utils.Accuracy
                        Grenade.Utils.SumSquaredParams
+                       Grenade.Utils.PositiveDouble
+                       Grenade.Utils.PositiveDouble.Internal
 
                        Grenade.Train.DataSet
                        Grenade.Train.Test
                        Grenade.Train.Network
-                       Grenade.Train.LearningParameters
-                       Grenade.Train.LearningParameters.Internal
+                       Grenade.Train.HyperParams
+                       Grenade.Train.HyperParamInfo
+                       Grenade.Train.HyperParamInfo.Internal
 
   includes:            cbits/im2col.h
                        cbits/gradient_descent.h

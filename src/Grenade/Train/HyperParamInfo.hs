@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module Grenade.Train.LearningParameters
+module Grenade.Train.HyperParamInfo
     ( HyperParamInfo
     , Accuracy
     , accuracyM
@@ -12,7 +12,8 @@ module Grenade.Train.LearningParameters
     ) where
 
 import Grenade.Core
-import Grenade.Train.LearningParameters.Internal
+import Grenade.Train.HyperParamInfo.Internal
+import Grenade.Train.HyperParams
 import Grenade.Train.DataSet
 import Grenade.Train.Network
 import Grenade.Utils.Accuracy
@@ -26,7 +27,7 @@ getHyperParamInfo
     . (SingI o, i ~ Head shapes, o ~ Last shapes,
         SumSquaredParams (Network layers shapes))
     => Int
-    -> LearningParameters
+    -> HyperParams
     -> Network layers shapes
     -> DataSet i o
     -> DataSet i o
@@ -34,4 +35,4 @@ getHyperParamInfo
 getHyperParamInfo 0 params _ _ _ = initHyperParamInfo params
 getHyperParamInfo n params net0 trainSet valSet =
     let (net, iterRunInfo) = getNetAndRunInfo params trainSet valSet net0
-    in updateHyperParamInfo iterRunInfo $ getHyperParamInfo (n - 1) params net trainSet valSet
+    in updateHyperParamInfo iterRunInfo $ getHyperParamInfo (n - 1) (decay params) net trainSet valSet

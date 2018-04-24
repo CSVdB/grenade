@@ -9,8 +9,9 @@ import Test.Grenade.Gen ()
 
 import Grenade.Core.LearningParameters
 import Grenade.Utils.Accuracy
-import Grenade.Train.LearningParameters
-import Grenade.Train.LearningParameters.Internal
+import Grenade.Train.HyperParams
+import Grenade.Train.HyperParamInfo
+import Grenade.Train.HyperParamInfo.Internal
 
 import Test.Validity
 import Test.Validity.Aeson
@@ -30,3 +31,9 @@ spec = do
     jsonSpecOnValid @RunInfo
     genValidSpec @WeightSize
     jsonSpecOnValid @WeightSize
+    genValidSpec @PositiveDouble
+    jsonSpecOnValid @PositiveDouble
+    genValidSpec @HyperParamInfo
+    jsonSpecOnValid @HyperParamInfo
+    genValidSpec @DecayFactor
+    jsonSpecOnValid @DecayFactor

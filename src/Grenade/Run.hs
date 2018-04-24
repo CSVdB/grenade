@@ -10,12 +10,13 @@ module Grenade.Run
 
 import Grenade.Train.Network
 import Grenade.Train.DataSet
+import Grenade.Train.HyperParams (HyperParams)
 import Grenade.Utils.SumSquaredParams
 
 import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Last, Head)
 
-import Grenade.Core (Shape, LearningParameters, Network)
+import Grenade.Core (Shape, Network)
 
 import Control.Monad
 
@@ -24,7 +25,7 @@ run
     . (SingI o, i ~ Head shapes, o ~ Last shapes,
        SumSquaredParams (Network layers shapes))
     => Int
-    -> LearningParameters
+    -> HyperParams
     -> IO (Network layers shapes)
     -> IO (DataSet i o, DataSet i o, DataSet i o)
     -> IO ()

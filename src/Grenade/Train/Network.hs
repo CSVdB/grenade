@@ -16,7 +16,8 @@ module Grenade.Train.Network
 
 import Grenade.Core
 import Grenade.Train.DataSet
-import Grenade.Train.LearningParameters.Internal
+import Grenade.Train.HyperParamInfo.Internal
+import Grenade.Train.HyperParams
 import Grenade.Train.Test
 import Grenade.Utils.Accuracy
 import Grenade.Utils.SumSquaredParams
@@ -39,7 +40,7 @@ trainNetworkAndPrintAccuracies ::
        , SumSquaredParams (Network layers shapes)
        )
     => Int
-    -> LearningParameters
+    -> HyperParams
     -> DataSet i o
     -> DataSet i o
     -> DataSet i o
@@ -48,29 +49,30 @@ trainNetworkAndPrintAccuracies ::
 trainNetworkAndPrintAccuracies 0 _ _ _ testSet net = do
     liftIO . putStrLn . showAccuracy "test" $ accuracy net testSet
     pure net
-trainNetworkAndPrintAccuracies n params0 trainSet valSet testSet net0 = do
-    let (net, runInfo) = getNetAndRunInfo params0 trainSet valSet net0
-        params = params0 { learningRate = learningRate params0 * learningDecayFactor params0 }
-    prettyPrintRunInfo runInfo
-    trainNetworkAndPrintAccuracies (n - 1) params trainSet valSet testSet net
+trainNetworkAndPrintAccuracies n params trainSet valSet testSet net0 = do
+    let (net, runInfo) = getNetAndRunInfo params trainSet valSet net0
+    liftIO . putStrLn $ prettyPrintRunInfo runInfo
+    trainNetworkAndPrintAccuracies
+        (n - 1)
+        (decay params)
+        trainSet
+        valSet
+        testSet
+        net
 
 -- Train the network
 trainNetwork ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape).
        (SingI o, i ~ Head shapes, o ~ Last shapes)
     => Int
-    -> LearningParameters
+    -> HyperParams
     -> DataSet i o
     -> Network layers shapes
     -> Network layers shapes
 trainNetwork 0 _ _ net = net
-trainNetwork n params0 trainSet net0 =
-    let params =
-            params0
-                { learningRate =
-                      learningRate params0 * learningDecayFactor params0
-                }
-     in trainNetwork (n - 1) params trainSet $ runIteration params trainSet net0
+trainNetwork n params trainSet net0 =
+    trainNetwork (n - 1) (decay params) trainSet $
+    runIteration params trainSet net0
 
 getNetAndRunInfo ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape).
@@ -79,7 +81,7 @@ getNetAndRunInfo ::
        , o ~ Last shapes
        , SumSquaredParams (Network layers shapes)
        )
-    => LearningParameters
+    => HyperParams
     -> DataSet i o
     -> DataSet i o
     -> Network layers shapes
@@ -91,19 +93,21 @@ getNetAndRunInfo params trainSet valSet net0 =
         valAcc = accuracy net valSet
         sizeOfWeights0 = getSumSquaredParams net
         iterRunInfo = RunInfo trainAcc valAcc sizeOfWeights0 sizeOfDeltaWeights0
-     in ( net
-        , iterRunInfo)
+     in (net, iterRunInfo)
 
 -- Train the network by one full run
 runIteration ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape).
        (SingI o, i ~ Head shapes, o ~ Last shapes)
-    => LearningParameters
+    => HyperParams
     -> DataSet i o
     -> Network layers shapes
     -> Network layers shapes
-runIteration params trainSet net0 =
-    foldl' (\net (inpt, outpt) -> train params net inpt outpt) net0 trainSet
+runIteration HyperParams {..} trainSet net0 =
+    foldl'
+        (\net (inpt, outpt) -> train learningParams net inpt outpt)
+        net0
+        trainSet
 
 -- trainAndGetChanges for a data set
 runIterationAndGetChanges ::
@@ -113,7 +117,7 @@ runIterationAndGetChanges ::
        , o ~ Last shapes
        , SumSquaredParams (Network layers shapes)
        )
-    => LearningParameters
+    => HyperParams
     -> DataSet i o
     -> Network layers shapes
     -> (Network layers shapes, WeightSize)
@@ -135,11 +139,12 @@ trainAndGetChanges ::
        , o ~ Last shapes
        , SumSquaredParams (Network layers shapes)
        )
-    => LearningParameters
+    => HyperParams
     -> DataPoint i o
     -> Network layers shapes
     -> (Network layers shapes, WeightSize)
-trainAndGetChanges params (inpt, outpt) net0 =
+trainAndGetChanges HyperParams {..} (inpt, outpt) net0 =
     let grad = backPropagate net0 inpt outpt
         proxy = Proxy @(Network layers shapes)
-     in (applyUpdate params net0 grad, getSumSquaredParamsDelta proxy grad)
+     in ( applyUpdate learningParams net0 grad
+        , getSumSquaredParamsDelta proxy grad)

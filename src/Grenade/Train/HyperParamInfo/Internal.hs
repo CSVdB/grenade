@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Grenade.Train.LearningParameters.Internal
+module Grenade.Train.HyperParamInfo.Internal
     ( RunInfo(..)
     , WeightSize
     , weightSize
@@ -12,7 +12,7 @@ module Grenade.Train.LearningParameters.Internal
     , prettyPrintRunInfo
     ) where
 
-import Grenade.Core.LearningParameters
+import Grenade.Train.HyperParams
 import Grenade.Utils.Accuracy
 
 import GHC.Generics
@@ -22,12 +22,9 @@ import Data.Aeson (ToJSON, FromJSON)
 import Data.Validity
 
 import Control.Monad.Catch
-import Control.Monad.IO.Class
-
-import Data.Foldable
 
 data HyperParamInfo = HyperParamInfo
-    { param :: LearningParameters
+    { param :: HyperParams
     , runInfo :: [RunInfo] -- The RunInfos are stored in reverse, so the first element in the list contains info about the last run.
     } deriving (Show, Eq, Generic)
 
@@ -37,7 +34,7 @@ instance FromJSON HyperParamInfo
 
 instance Validity HyperParamInfo
 
-initHyperParamInfo :: LearningParameters -> HyperParamInfo
+initHyperParamInfo :: HyperParams -> HyperParamInfo
 initHyperParamInfo param = HyperParamInfo param []
 
 updateHyperParamInfo :: RunInfo -> HyperParamInfo -> HyperParamInfo
@@ -58,8 +55,8 @@ instance FromJSON RunInfo
 
 instance Validity RunInfo
 
-prettyPrintRunInfo :: MonadIO m => RunInfo -> m ()
-prettyPrintRunInfo RunInfo {..} = liftIO $ traverse_ putStrLn
+prettyPrintRunInfo :: RunInfo -> String
+prettyPrintRunInfo RunInfo {..} = mconcat
         [ showAccuracy "train" trainAccuracy
         , showAccuracy "validation" validationAccuracy
         , showSizeOfWeights sizeOfWeights

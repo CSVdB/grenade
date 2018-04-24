@@ -41,8 +41,8 @@ instance (KnownNat i, KnownNat o) => UpdateLayer (FullyConnected i o) where
   type Gradient (FullyConnected i o) = (FullyConnected' i o)
 
   runUpdate LearningParameters {..} (FullyConnected (FullyConnected' oldBias oldActivations) (FullyConnected' oldBiasMomentum oldMomentum)) (FullyConnected' biasGradient activationGradient) =
-    let (newBias, newBiasMomentum)    = descendVector learningRate learningMomentum learningRegulariser oldBias biasGradient oldBiasMomentum
-        (newActivations, newMomentum) = descendMatrix learningRate learningMomentum learningRegulariser oldActivations activationGradient oldMomentum
+    let (newBias, newBiasMomentum)    = descendVector (positiveToDouble learningRate) (positiveToDouble learningMomentum) (positiveToDouble learningRegulariser) oldBias biasGradient oldBiasMomentum
+        (newActivations, newMomentum) = descendMatrix (positiveToDouble learningRate) (positiveToDouble learningMomentum) (positiveToDouble learningRegulariser) oldActivations activationGradient oldMomentum
     in FullyConnected (FullyConnected' newBias newActivations) (FullyConnected' newBiasMomentum newMomentum)
 
   createRandom = randomFullyConnected

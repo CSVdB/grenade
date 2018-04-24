@@ -4,29 +4,30 @@ module Test.Grenade.Gen where
 
 import Grenade.Core.LearningParameters
 
-import Grenade.Utils.Accuracy
-import Grenade.Train.LearningParameters
-import Grenade.Train.LearningParameters.Internal
+import Grenade.Train.HyperParamInfo
+import Grenade.Train.HyperParamInfo.Internal
+import Grenade.Train.HyperParams
+import Grenade.Utils.PositiveDouble.Internal
 
 import Data.GenValidity
 import Data.Maybe
 
 import Test.QuickCheck (choose, listOf)
-import Test.QuickCheck.Gen (suchThat)
+
+instance GenUnchecked PositiveDouble
+
+instance GenValid PositiveDouble where
+    genValid = PositiveDouble . abs <$> genValid
 
 instance GenUnchecked LearningParameters
 
 instance GenValid LearningParameters where
-    genValid = do
-        rate <- genValid `suchThat` (> 0)
-        momentum <- genValid `suchThat` (>= 0)
-        regulariser <- genValid `suchThat` (>= 0)
-        LearningParameters rate momentum regulariser <$> choose (0,1)
+    genValid = LearningParameters <$> genValid <*> genValid <*> genValid
 
 instance GenUnchecked Accuracy
 
 instance GenValid Accuracy where
-    genValid = fromMaybe <$> genValid <*> (accuracyM <$> choose (0,1))
+    genValid = fromMaybe <$> genValid <*> (accuracyM <$> choose (0, 1))
 
 instance GenUnchecked WeightSize
 
@@ -42,3 +43,14 @@ instance GenUnchecked HyperParamInfo
 
 instance GenValid HyperParamInfo where
     genValid = HyperParamInfo <$> genValid <*> listOf genValid
+
+instance GenUnchecked HyperParams
+
+instance GenValid HyperParams where
+    genValid = HyperParams <$> genValid <*> genValid
+
+instance GenUnchecked DecayFactor
+
+instance GenValid DecayFactor where
+    genValid =
+        fromMaybe <$> genValid <*> (constructDecayFactor <$> choose (0, 1))

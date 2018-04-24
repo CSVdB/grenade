@@ -132,7 +132,7 @@ instance ( KnownNat channels
          ) => UpdateLayer (Convolution channels filters kernelRows kernelColumns strideRows strideColumns) where
   type Gradient (Convolution channels filters kernelRows kernelColumns strideRows strideColumns) = (Convolution' channels filters kernelRows kernelColumns strideRows strideColumns)
   runUpdate LearningParameters {..} (Convolution oldKernel oldMomentum) (Convolution' kernelGradient) =
-    let (newKernel, newMomentum) = descendMatrix learningRate learningMomentum learningRegulariser oldKernel kernelGradient oldMomentum
+    let (newKernel, newMomentum) = descendMatrix (positiveToDouble learningRate) (positiveToDouble learningMomentum) (positiveToDouble learningRegulariser) oldKernel kernelGradient oldMomentum
     in Convolution newKernel newMomentum
 
   createRandom = randomConvolution

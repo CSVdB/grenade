@@ -3,7 +3,7 @@
 module Grenade.Utils.SumSquaredParams where
 
 import Grenade.Core.Layer
-import Grenade.Train.LearningParameters.Internal
+import Grenade.Train.HyperParamInfo.Internal
 
 import qualified Numeric.LinearAlgebra as LA
 import qualified Numeric.LinearAlgebra.Static as LA
