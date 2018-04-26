@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE RecordWildCards #-}
 {-|
 Module      : Grenade.Core.LearningParameters
 Description : Stochastic gradient descent learning parameters
@@ -5,14 +7,12 @@ Copyright   : (c) Huw Campbell, 2016-2017
 License     : BSD2
 Stability   : experimental
 -}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE RecordWildCards #-}
 
-module Grenade.Core.LearningParameters
-  -- | This module contains learning algorithm specific
-  --   code. Currently, this module should be considered
-  --   unstable, due to issue #26.
-    ( LearningParameters(..)
+module Grenade.Core.LearningParameters (
+-- | This module contains learning algorithm specific
+--   code. Currently, this module should be considered
+--   unstable, due to issue #26.
+      LearningParameters(..)
     , createLearningParameters
     , positiveToDouble
     , PositiveDouble

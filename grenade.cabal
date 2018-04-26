@@ -53,6 +53,7 @@ library
                      , path-io
                      , primitive                       >= 0.6         && < 0.7
                      , QuickCheck
+                     , random
                      , singletons                      >= 2.1         && < 2.4
                      , time
                      , validity

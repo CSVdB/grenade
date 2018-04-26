@@ -9,6 +9,7 @@
 module Grenade.Train.OptimiseHyper
     ( findHyperParams
     , findHyperParamsWithSeveralRuns
+    , HyperParamOptimisationInfo
     ) where
 
 import Grenade.Core
@@ -33,6 +34,8 @@ import Data.Singletons.Prelude (Head, Last)
 import Control.Monad.IO.Class
 
 import Data.Time.Clock
+
+import Numeric.Natural
 
 nOfValues :: Int
 nOfValues = 5
@@ -62,9 +65,10 @@ changeParams Decay params@(HyperParams lparams decayFactor) x =
         Nothing -> params
         Just newParams -> newParams
 
-genParamSets :: MonadIO m => FieldToUpdate -> Double -> HyperParams -> m [HyperParams]
-genParamSets fu updateFactor params =
-    liftIO . gens nOfValues $ changeParams fu params . PositiveDouble . exp <$> choose (-updateFactor, updateFactor)
+genParamSets :: MonadIO m => FieldToUpdate -> PositiveDouble -> HyperParams -> m [HyperParams]
+genParamSets fu (PositiveDouble uf) params =
+    liftIO . gens nOfValues $ changeParams fu params . PositiveDouble . exp <$>
+        choose (-uf, uf)
 
 updateHyperParams ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape) (m :: * -> *).
@@ -75,7 +79,7 @@ updateHyperParams ::
        , SumSquaredParams (Network layers shapes)
        )
     => Int
-    -> Double
+    -> PositiveDouble
     -> Network layers shapes
     -> DataSet i o
     -> DataSet i o
@@ -111,17 +115,18 @@ findHyperParams epochs net optInfo@HyperParamOptimisationInfo {..} fu0 params0 =
     (params, fu, valAcc) <- updateHyperParams epochs updateFactor net trainSet valSet fu0 params0
     finish <- liftIO getCurrentTime
     liftIO . print $ diffUTCTime finish start
-    if valAcc > requiredAcc
+    if valAcc > requiredAcc || maxIterations == 0
         then pure params
-        else let newOptInfo = optInfo { updateFactor = updateFactor * updateFactorDecay }
+        else let newOptInfo = optInfo { updateFactor = pMultiply updateFactor updateFactorDecay, maxIterations = pred maxIterations }
              in findHyperParams epochs net newOptInfo fu params
 
 data HyperParamOptimisationInfo i o = HyperParamOptimisationInfo
-    { updateFactor :: Double
-    , updateFactorDecay :: Double
+    { updateFactor :: PositiveDouble
+    , updateFactorDecay :: PositiveDouble
     , trainSet :: DataSet i o
     , valSet :: DataSet i o
     , requiredAcc :: Accuracy
+    , maxIterations :: Natural
     } deriving (Show)
 
 findHyperParamsWithSeveralRuns ::
