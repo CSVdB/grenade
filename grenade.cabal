@@ -38,6 +38,7 @@ source-repository head
 library
   build-depends:
                        aeson
+                     , aeson-pretty
                      , base                            >= 4.8         && < 5
                      , bytestring                      == 0.10.*
                      , checkers
@@ -48,6 +49,8 @@ library
                      , extra
                      , hmatrix                         == 0.18.*
                      , MonadRandom                     >= 0.4         && < 0.6
+                     , path
+                     , path-io
                      , primitive                       >= 0.6         && < 0.7
                      , QuickCheck
                      , singletons                      >= 2.1         && < 2.4
@@ -115,6 +118,7 @@ library
                        Grenade.Utils.OneHot
                        Grenade.Utils.Accuracy
                        Grenade.Utils.SumSquaredParams
+                       Grenade.Utils.ReadWrite
                        Grenade.Utils.PositiveDouble
                        Grenade.Utils.PositiveDouble.Internal
 
