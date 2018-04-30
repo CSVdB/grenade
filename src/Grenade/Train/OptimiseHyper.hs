@@ -47,13 +47,11 @@ nOfValues = 20
 data FieldToUpdate
     = Rate
     | Momentum
-    | Regulator
     | Decay
     deriving (Show, Eq, Generic)
 
 nextFu :: FieldToUpdate -> FieldToUpdate
-nextFu Rate = Regulator
-nextFu Regulator = Momentum
+nextFu Rate = Momentum
 nextFu Momentum = Decay
 nextFu Decay = Rate
 
@@ -62,8 +60,6 @@ changeParams Rate (HyperParams lparams@LearningParameters {..} decayFactor) x =
     HyperParams lparams {learningRate = pMultiply x learningRate} decayFactor
 changeParams Momentum (HyperParams lparams@LearningParameters {..} decayFactor) x =
     HyperParams lparams {learningMomentum = pMultiply x learningMomentum } decayFactor
-changeParams Regulator (HyperParams lparams@LearningParameters {..} decayFactor) x =
-    HyperParams lparams {learningRegulariser = pMultiply x learningRegulariser } decayFactor
 changeParams Decay params@(HyperParams lparams decayFactor) x =
     case HyperParams lparams <$> dMultiply x decayFactor of
         Nothing -> params
