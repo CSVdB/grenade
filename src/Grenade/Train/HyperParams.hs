@@ -20,8 +20,8 @@ import Data.Aeson (ToJSON, FromJSON)
 import GHC.Generics
 
 data HyperParams = HyperParams
-    { learningParams :: LearningParameters
-    , learningDecayFactor :: DecayFactor -- -- rate(i) = rate * decayFactor^i, where rate*(i) is the rate during iteration i
+    { learningParams :: !LearningParameters
+    , learningDecayFactor :: !DecayFactor -- -- rate(i) = rate * decayFactor^i, where rate*(i) is the rate during iteration i
     } deriving (Show, Eq, Generic)
 
 instance ToJSON HyperParams

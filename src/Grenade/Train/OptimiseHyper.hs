@@ -117,6 +117,7 @@ findHyperParams ::
 findHyperParams epochs net trainInfo@TrainInfo {..} fu0 params0 = do
     start <- liftIO getCurrentTime
     liftIO $ print fu0
+    liftIO $ putStrLn "The correct version of grenade is used!"
     (params, fu, valAcc) <- updateHyperParams epochs updateFactorTrain net trainSet valSet fu0 params0 alpha
     finish <- liftIO getCurrentTime
     liftIO . print $ diffUTCTime finish start
@@ -127,13 +128,13 @@ findHyperParams epochs net trainInfo@TrainInfo {..} fu0 params0 = do
              in findHyperParams epochs net newTrainInfo fu params
 
 data TrainInfo i o = TrainInfo
-    { updateFactorTrain :: PositiveDouble
-    , updateFactorDecayTrain :: PositiveDouble
-    , trainSet :: DataSet i o
-    , valSet :: DataSet i o
-    , requiredAccTrain :: Accuracy
-    , maxIterTrain :: Natural
-    , alpha :: Double
+    { updateFactorTrain :: !PositiveDouble
+    , updateFactorDecayTrain :: !PositiveDouble
+    , trainSet :: !(DataSet i o)
+    , valSet :: !(DataSet i o)
+    , requiredAccTrain :: !Accuracy
+    , maxIterTrain :: !Natural
+    , alpha :: !Double
     } deriving Show
 
 getTrainInfo ::
@@ -143,13 +144,13 @@ getTrainInfo HyperParamOptInfo {..} fullTrainSet fullValSet =
     TrainInfo updateFactor updateFactorDecay (take trainSize fullTrainSet) (take valSize fullValSet) requiredAcc maxIterations alphaInfo
 
 data HyperParamOptInfo = HyperParamOptInfo
-    { updateFactor :: PositiveDouble
-    , updateFactorDecay :: PositiveDouble
-    , trainSize :: Int
-    , valSize :: Int
-    , requiredAcc :: Accuracy
-    , maxIterations :: Natural
-    , alphaInfo :: Double
+    { updateFactor :: !PositiveDouble
+    , updateFactorDecay :: !PositiveDouble
+    , trainSize :: !Int
+    , valSize :: !Int
+    , requiredAcc :: !Accuracy
+    , maxIterations :: !Natural
+    , alphaInfo :: !Double
     } deriving Show
 
 instance Validity HyperParamOptInfo where

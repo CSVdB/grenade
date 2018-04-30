@@ -29,9 +29,9 @@ import Data.Validity
 
 -- | Learning parameters for stochastic gradient descent.
 data LearningParameters = LearningParameters
-    { learningRate :: PositiveDouble
-    , learningMomentum :: PositiveDouble
-    , learningRegulariser :: PositiveDouble
+    { learningRate :: !PositiveDouble
+    , learningMomentum :: !PositiveDouble
+    , learningRegulariser :: !PositiveDouble
     } deriving (Eq, Show, Generic)
 
 instance ToJSON LearningParameters

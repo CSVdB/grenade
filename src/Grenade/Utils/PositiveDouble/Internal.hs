@@ -18,17 +18,20 @@ instance ToJSON PositiveDouble
 instance FromJSON PositiveDouble
 
 instance Validity PositiveDouble where
-    validate (PositiveDouble x) = x >= 0 <?@> "A PositiveDouble is positive"
+    validate (PositiveDouble x) = mconcat
+        [ x <?!> "A PositiveDouble is a valid Double"
+        , x >= 0 <?@> "A PositiveDouble is positive"
+        ]
 
-data NegativePositiveDouble = NegativePositiveDouble deriving (Show, Eq)
+newtype NegativePositiveDouble = NegativePositiveDouble String deriving (Show, Eq)
 
 instance Exception NegativePositiveDouble where
-    displayException NegativePositiveDouble = "A PositiveDouble must be positive."
+    displayException (NegativePositiveDouble errMess) = errMess
 
 constructPositiveDouble :: MonadThrow m => Double -> m PositiveDouble
-constructPositiveDouble x = case constructValid $ PositiveDouble x of
-    Nothing -> throwM NegativePositiveDouble
-    Just y -> pure y
+constructPositiveDouble x = case prettyValidation $ PositiveDouble x of
+    Left errMess -> throwM $ NegativePositiveDouble errMess
+    Right y -> pure y
 
 instance Monoid PositiveDouble where
     mempty = PositiveDouble 0

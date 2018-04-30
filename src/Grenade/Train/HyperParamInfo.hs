@@ -4,6 +4,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Grenade.Train.HyperParamInfo
     ( HyperParamInfo
@@ -36,8 +37,9 @@ getHyperParamInfo
     -> HyperParamInfo
 getHyperParamInfo 0 _ _ _ params = initHyperParamInfo params
 getHyperParamInfo n net0 trainSet valSet params =
-    let (net, iterRunInfo) = getNetAndRunInfo params trainSet valSet net0
-    in updateHyperParamInfo iterRunInfo $ getHyperParamInfo (n - 1) net trainSet valSet $ decay params
+    updateHyperParamInfo iterRunInfo $ getHyperParamInfo (n - 1) net trainSet valSet $ decay params
+  where
+    (!net, !iterRunInfo) = getNetAndRunInfo params trainSet valSet net0
 
 getAccuracy :: HyperParamInfo -> Accuracy
 getAccuracy HyperParamInfo {..} = validationAccuracy $ head runInfo
