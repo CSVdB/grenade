@@ -9,12 +9,14 @@
 module Grenade.Train.OptimiseHyper
     ( findHyperParams
     , findHyperParamsWithSeveralRuns
-    , HyperParamOptimisationInfo
+    , HyperParamOptInfo
+    , getHyperParamOptInfo
     ) where
 
 import Grenade.Core
 import Grenade.Train.DataSet
 import Grenade.Train.HyperParamInfo
+import Grenade.Train.HyperParamInfo.Internal
 import Grenade.Train.HyperParams
 import Grenade.Utils.PositiveDouble
 import Grenade.Utils.PositiveDouble.Internal
@@ -32,13 +34,15 @@ import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Head, Last)
 
 import Control.Monad.IO.Class
+import Control.Monad.Catch
 
 import Data.Time.Clock
+import Data.Validity
 
 import Numeric.Natural
 
 nOfValues :: Int
-nOfValues = 5
+nOfValues = 20
 
 data FieldToUpdate
     = Rate
@@ -48,10 +52,10 @@ data FieldToUpdate
     deriving (Show, Eq, Generic)
 
 nextFu :: FieldToUpdate -> FieldToUpdate
-nextFu Regulator = Rate
-nextFu Rate = Momentum
+nextFu Rate = Regulator
+nextFu Regulator = Momentum
 nextFu Momentum = Decay
-nextFu Decay = Regulator
+nextFu Decay = Rate
 
 changeParams :: FieldToUpdate -> HyperParams -> PositiveDouble -> HyperParams
 changeParams Rate (HyperParams lparams@LearningParameters {..} decayFactor) x =
@@ -85,16 +89,20 @@ updateHyperParams ::
     -> DataSet i o
     -> FieldToUpdate
     -> HyperParams
+    -> Double
     -> m (HyperParams, FieldToUpdate, Accuracy)
-updateHyperParams epochs updateFactor net trainSet valSet fu params = do
+updateHyperParams epochs updateFactor net trainSet valSet fu params alpha = do
     paramSets <- genParamSets fu updateFactor params
-    let bestParams = flip maximumOn paramSets getAccuracyFromHyperParams :: HyperParams
-    let newFu = nextFu fu
-    let valAcc = getAccuracyFromHyperParams bestParams
+    let bestParamInfo = maximumOn getAccuracy $ getHyperParamInfo epochs net trainSet valSet <$> paramSets
+        valAcc = getAccuracy bestParamInfo
+        newParams = updateRegulariser bestParamInfo alpha
     liftIO . putStrLn $ showAccuracy "validation" valAcc
-    pure (bestParams, newFu, valAcc)
-  where
-    getAccuracyFromHyperParams = getAccuracy . getHyperParamInfo epochs net trainSet valSet
+    pure (newParams, nextFu fu, valAcc)
+
+updateRegulariser :: HyperParamInfo -> Double -> HyperParams
+updateRegulariser info@(HyperParamInfo ( HyperParams lp@LearningParameters {..} decayRate) _) alpha =
+    let ratio = pExp (quotientOfSumOfWeights info) alpha
+    in HyperParams lp { learningRegulariser = pMultiply learningRegulariser ratio } decayRate
 
 findHyperParams ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape) (m :: * -> *).
@@ -106,28 +114,65 @@ findHyperParams ::
        )
     => Int
     -> Network layers shapes
-    -> HyperParamOptimisationInfo i o
+    -> TrainInfo i o
     -> FieldToUpdate
     -> HyperParams
     -> m (HyperParams)
-findHyperParams epochs net optInfo@HyperParamOptimisationInfo {..} fu0 params0 = do
+findHyperParams epochs net trainInfo@TrainInfo {..} fu0 params0 = do
     start <- liftIO getCurrentTime
-    (params, fu, valAcc) <- updateHyperParams epochs updateFactor net trainSet valSet fu0 params0
+    liftIO $ print fu0
+    (params, fu, valAcc) <- updateHyperParams epochs updateFactorTrain net trainSet valSet fu0 params0 alpha
     finish <- liftIO getCurrentTime
     liftIO . print $ diffUTCTime finish start
-    if valAcc > requiredAcc || maxIterations == 0
+    liftIO . putStrLn $ prettyPrintHyperParams params
+    if valAcc > requiredAccTrain || maxIterTrain == 0
         then pure params
-        else let newOptInfo = optInfo { updateFactor = pMultiply updateFactor updateFactorDecay, maxIterations = pred maxIterations }
-             in findHyperParams epochs net newOptInfo fu params
+        else let newTrainInfo = trainInfo { updateFactorTrain = pMultiply updateFactorTrain updateFactorDecayTrain, maxIterTrain = pred maxIterTrain }
+             in findHyperParams epochs net newTrainInfo fu params
 
-data HyperParamOptimisationInfo i o = HyperParamOptimisationInfo
-    { updateFactor :: PositiveDouble
-    , updateFactorDecay :: PositiveDouble
+data TrainInfo i o = TrainInfo
+    { updateFactorTrain :: PositiveDouble
+    , updateFactorDecayTrain :: PositiveDouble
     , trainSet :: DataSet i o
     , valSet :: DataSet i o
+    , requiredAccTrain :: Accuracy
+    , maxIterTrain :: Natural
+    , alpha :: Double
+    } deriving Show
+
+getTrainInfo ::
+    forall (i :: Shape) (o :: Shape).
+    HyperParamOptInfo -> DataSet i o -> DataSet i o -> TrainInfo i o
+getTrainInfo HyperParamOptInfo {..} fullTrainSet fullValSet =
+    TrainInfo updateFactor updateFactorDecay (take trainSize fullTrainSet) (take valSize fullValSet) requiredAcc maxIterations alphaInfo
+
+data HyperParamOptInfo = HyperParamOptInfo
+    { updateFactor :: PositiveDouble
+    , updateFactorDecay :: PositiveDouble
+    , trainSize :: Int
+    , valSize :: Int
     , requiredAcc :: Accuracy
     , maxIterations :: Natural
-    } deriving (Show)
+    , alphaInfo :: Double
+    } deriving Show
+
+instance Validity HyperParamOptInfo where
+    validate HyperParamOptInfo {..} = mconcat
+        [ updateFactor <?!> "Update factor"
+        , updateFactorDecay <?!> "Update factor decay"
+        , trainSize > 0 <?@> "The size of the train set is positive"
+        , valSize > 0 <?@> "The size of the validation set is positive"
+        , requiredAcc <?!> "Required accuracy"
+        , maxIterations <?!> "Maximum number of iterations"
+        , alphaInfo <?!> "Alpha is a double"
+        ]
+
+getHyperParamOptInfo :: Double -> Double -> Int -> Int -> Double -> Natural -> Double -> Either String HyperParamOptInfo
+getHyperParamOptInfo uf ufd ts vs ra mi al = do
+    acc <- case accuracyM ra of
+        Left err -> Left $ displayException err
+        Right x -> Right x
+    prettyValidation $ HyperParamOptInfo (PositiveDouble uf) (PositiveDouble ufd) ts vs acc mi al
 
 findHyperParamsWithSeveralRuns ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape) (m :: * -> *).
@@ -139,11 +184,13 @@ findHyperParamsWithSeveralRuns ::
        )
     => Int
     -> Network layers shapes
-    -> [HyperParamOptimisationInfo i o]
+    -> DataSet i o
+    -> DataSet i o
+    -> [HyperParamOptInfo]
     -> HyperParams
     -> m (HyperParams)
-findHyperParamsWithSeveralRuns _ _ [] params = pure params
-findHyperParamsWithSeveralRuns epochs net (x@HyperParamOptimisationInfo{..}:xs) params0 = do
-    params <- findHyperParams epochs net x Regulator params0
+findHyperParamsWithSeveralRuns _ _ _ _ [] params = pure params
+findHyperParamsWithSeveralRuns epochs net trainSet valSet (x@HyperParamOptInfo{..}:xs) params0 = do
+    params <- findHyperParams epochs net (getTrainInfo x trainSet valSet) Rate params0
     liftIO . putStrLn . showAccuracy "validation" . getAccuracy $ getHyperParamInfo epochs net trainSet valSet params
-    findHyperParamsWithSeveralRuns epochs net xs params
+    findHyperParamsWithSeveralRuns epochs net trainSet valSet xs params
