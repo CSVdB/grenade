@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans  #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE KindSignatures        #-}
@@ -34,6 +35,7 @@ import           Data.Singletons
 import           Data.Singletons.TypeLits
 import           Data.Vector.Storable ( Vector )
 import qualified Data.Vector.Storable as V
+import           Data.Validity
 
 import           GHC.TypeLits
 
@@ -207,3 +209,14 @@ nk x = case (sing :: Sing x) of
 
   D3Sing SNat SNat SNat ->
     S3D (konst x)
+
+instance KnownNat n => Validity (R n) where
+    validate v = V.toList (extract v) <?!> "R-based vector"
+
+instance (KnownNat i, KnownNat j) => Validity (L i j) where
+    validate m = V.toList (NLA.flatten $ extract m) <?!> "L-based matrix"
+
+instance Validity (S (n :: Shape)) where
+    validate (S1D v) = v <?!> "1D shape"
+    validate (S2D m) = m <?!> "2D shape"
+    validate (S3D m) = m <?!> "3D shape"

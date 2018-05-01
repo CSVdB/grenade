@@ -4,6 +4,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE DeriveGeneric         #-}
 module Grenade.Layers.FullyConnected (
     FullyConnected (..)
   , FullyConnected' (..)
@@ -15,6 +16,12 @@ import           Control.Monad.Random hiding (fromList)
 import           Data.Proxy
 import           Data.Serialize
 import           Data.Singletons.TypeLits
+
+import           Data.Validity
+
+import           Debug.Trace (traceShow)
+
+import           GHC.Generics (Generic)
 
 import qualified Numeric.LinearAlgebra as LA
 import           Numeric.LinearAlgebra.Static
@@ -29,13 +36,18 @@ import           Grenade.Utils.SumSquaredParams
 data FullyConnected i o = FullyConnected
                         !(FullyConnected' i o)   -- Neuron weights
                         !(FullyConnected' i o)   -- Neuron momentum
+    deriving Generic
 
 data FullyConnected' i o = FullyConnected'
                          !(R o)   -- Bias
                          !(L o i) -- Activations
+    deriving Generic
 
 instance Show (FullyConnected i o) where
   show FullyConnected {} = "FullyConnected"
+
+instance Show (FullyConnected' i o) where
+  show FullyConnected' {} = "FullyConnected'"
 
 instance (KnownNat i, KnownNat o) => UpdateLayer (FullyConnected i o) where
   type Gradient (FullyConnected i o) = (FullyConnected' i o)
@@ -88,7 +100,13 @@ randomFullyConnected = do
     return $ FullyConnected (FullyConnected' wB wN) (FullyConnected' bm mm)
 
 instance (KnownNat i, KnownNat o) => SumSquaredParams (FullyConnected i o) where
-    getSumSquaredParams (FullyConnected (FullyConnected' biases activations) _momenta) =
-        sumSquaredParamsFromVector biases `mappend` sumSquaredParamsFromMatrix activations
-    getSumSquaredParamsDelta _layer (FullyConnected' biasDeltas actiDeltas) =
-        sumSquaredParamsFromVector biasDeltas `mappend` sumSquaredParamsFromMatrix actiDeltas
+    getSumSquaredParams l@(FullyConnected (FullyConnected' biases activations) _momenta) =
+        let _ = traceShow "reached getSumSquaredParams" $ constructValidUnsafe l
+        in sumSquaredParamsFromVector biases `mappend` sumSquaredParamsFromMatrix activations
+    getSumSquaredParamsDelta _layer g@(FullyConnected' biasDeltas actiDeltas) =
+        let _ = constructValidUnsafe g
+        in sumSquaredParamsFromVector biasDeltas `mappend` sumSquaredParamsFromMatrix actiDeltas
+
+instance (KnownNat i, KnownNat o) => Validity (FullyConnected' i o)
+
+instance (KnownNat i, KnownNat o) => Validity (FullyConnected i o)

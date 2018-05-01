@@ -55,6 +55,7 @@ library
                      , QuickCheck
                      , random
                      , singletons                      >= 2.1         && < 2.4
+                     , statistics
                      , time
                      , validity
                      , vector                          >= 0.11        && < 0.13

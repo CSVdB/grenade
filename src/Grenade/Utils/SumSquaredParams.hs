@@ -12,6 +12,10 @@ import qualified Data.Vector.Storable as VS
 
 import Control.Monad.Catch
 
+import qualified Statistics.Sample as Stat
+
+import Data.Validity
+
 import Debug.Trace (traceShow)
 
 -- This is a typeclass to calculate sum w^2 and sum (delta w)^2
@@ -23,25 +27,21 @@ class UpdateLayer layer => SumSquaredParams layer where
 
 sumSquaredParamsFromMatrix :: LA.Sized Double s LA.Matrix => s -> PositiveDouble
 sumSquaredParamsFromMatrix m =
-    let s = VS.sum . VS.map square . LA.flatten $ LA.extract m
+    traceShow "Matrix" $
+    let s = Stat.mean . VS.map square . LA.flatten $ LA.extract m
     in traceShow s $ case constructPositiveDouble s of
---    case constructPositiveDouble . VS.sum . VS.map (\x -> x * x) . LA.flatten $ LA.extract m of
         Right w -> w
         Left e -> error $ displayException e
 
 sumSquaredParamsFromVector :: LA.Sized Double s LA.Vector => s -> PositiveDouble
 sumSquaredParamsFromVector v =
-    let s = VS.sum . VS.map squareV $ LA.extract v
+    traceShow "Vector" $
+    let s = Stat.mean . VS.map square $ LA.extract v
     in traceShow s $ case constructPositiveDouble s of
         Right w -> w
         Left e -> error $ displayException e
 
 square :: Double -> Double
-square x = case isNaN x of
-    True -> error "You get a NaN input in a matrix!"
-    False -> x * x
-
-squareV :: Double -> Double
-squareV x = case isNaN x of
-    True -> error "You get a NaN input in a vector!"
-    False -> x * x
+square x = case prettyValidation x of
+    Left errMess -> error errMess
+    Right y -> abs y

@@ -117,7 +117,6 @@ findHyperParams ::
 findHyperParams epochs net trainInfo@TrainInfo {..} fu0 params0 = do
     start <- liftIO getCurrentTime
     liftIO $ print fu0
-    liftIO $ putStrLn "The correct version of grenade is used!"
     (params, fu, valAcc) <- updateHyperParams epochs updateFactorTrain net trainSet valSet fu0 params0 alpha
     finish <- liftIO getCurrentTime
     liftIO . print $ diffUTCTime finish start
