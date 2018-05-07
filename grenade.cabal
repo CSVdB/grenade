@@ -171,6 +171,10 @@ test-suite test
                        Test.Grenade.Recurrent.Layers.LSTM
                        Test.Grenade.Recurrent.Layers.LSTM.Reference
 
+                       Test.Grenade.QuickCheck.Layers.FullyConnected.Gen
+                       Test.Grenade.QuickCheck.Layers.FullyConnected.Spec
+                       Test.Grenade.QuickCheck.Layers.FullyConnected.InstanceSpec
+
   if impl(ghc < 8.0)
     ghc-options:       -fno-warn-incomplete-patterns
 
