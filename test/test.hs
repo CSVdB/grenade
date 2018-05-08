@@ -16,6 +16,7 @@ import qualified Test.Grenade.Layers.Internal.Pooling
 import qualified Test.Grenade.Recurrent.Layers.LSTM
 
 import qualified Test.Grenade.QuickCheck.Layers.FullyConnected.InstanceSpec
+import qualified Test.Grenade.QuickCheck.Layers.FullyConnected.Spec
 
 import System.Exit
 import System.IO
@@ -26,6 +27,7 @@ main =
         [ Test.Grenade.Network.tests
         , Test.Grenade.InstanceSpec.tests
         , Test.Grenade.QuickCheck.Layers.FullyConnected.InstanceSpec.tests
+        , Test.Grenade.QuickCheck.Layers.FullyConnected.Spec.tests
         , Test.Grenade.Layers.Pooling.tests
         , Test.Grenade.Layers.Convolution.tests
         , Test.Grenade.Layers.FullyConnected.tests

@@ -1,8 +1,9 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
+
 {-|
 Module      : Grenade.Layers.Tanh
 Description : Hyperbolic tangent nonlinear layer
@@ -10,38 +11,45 @@ Copyright   : (c) Huw Campbell, 2016-2017
 License     : BSD2
 Stability   : experimental
 -}
-module Grenade.Layers.Tanh (
-    Tanh (..)
-  ) where
+module Grenade.Layers.Tanh
+    ( Tanh(..)
+    ) where
 
-import           Data.Serialize
-import           Data.Singletons
+import Data.Serialize
+import Data.Singletons
+import Data.Validity
 
-import           Grenade.Core
-import           Grenade.Utils.SumSquaredParams
+import Grenade.Core
+import Grenade.Utils.SumSquaredParams
 
 -- | A Tanh layer.
 --   A layer which can act between any shape of the same dimension, performing a tanh function.
-data Tanh = Tanh
-  deriving Show
+data Tanh =
+    Tanh
+    deriving (Show)
 
 instance UpdateLayer Tanh where
-  type Gradient Tanh = ()
-  runUpdate _ _ _ = Tanh
-  createRandom = return Tanh
+    type Gradient Tanh = ()
+    runUpdate _ _ _ = Tanh
+    createRandom = return Tanh
 
 instance Serialize Tanh where
-  put _ = return ()
-  get = return Tanh
+    put _ = return ()
+    get = return Tanh
 
 instance (a ~ b, SingI a) => Layer Tanh a b where
-  type Tape Tanh a b = S a
-  runForwards _ a = (a, tanh a)
-  runBackwards _ a g = ((), tanh' a * g)
+    type Tape Tanh a b = S a
+    runForwards _ a = (a, tanh a)
+    runBackwards _ a g = ((), tanh' a * g)
 
 tanh' :: (Floating a) => a -> a
-tanh' t = 1 - s ^ (2 :: Int)  where s = tanh t
+tanh' t = 1 - s ^ (2 :: Int)
+  where
+    s = tanh t
 
 instance SumSquaredParams Tanh where
     getSumSquaredParams _layer = mempty
     getSumSquaredParamsDelta _proxy _gradient = mempty
+
+instance Validity Tanh where
+    validate = trivialValidation

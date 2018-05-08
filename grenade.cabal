@@ -198,8 +198,8 @@ test-suite test
                      , ad
                      , reflection
                      , QuickCheck
+                     , validity
                      , vector
-
 
 benchmark bench
   type:                exitcode-stdio-1.0

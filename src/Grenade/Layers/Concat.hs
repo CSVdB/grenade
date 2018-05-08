@@ -26,6 +26,7 @@ import           Data.Serialize
 
 import           Data.Singletons
 import           GHC.TypeLits
+import           Data.Validity
 
 import           Grenade.Core
 
@@ -139,3 +140,9 @@ instance (SumSquaredParams x, SumSquaredParams y) => SumSquaredParams (Concat m 
     getSumSquaredParams (Concat x y) = getSumSquaredParams x `mappend` getSumSquaredParams y
     getSumSquaredParamsDelta _proxy (gradX, gradY) =
         getSumSquaredParamsDelta (Proxy @x) gradX `mappend` getSumSquaredParamsDelta (Proxy @y) gradY
+
+instance (Validity x, Validity y) => Validity (Concat m x n y) where
+    validate (Concat x y) = mconcat
+         [ x <?!> "first layer in cocnat"
+         , y <?!> "first layer in cocnat"
+         ]
