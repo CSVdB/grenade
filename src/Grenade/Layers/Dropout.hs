@@ -2,6 +2,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Grenade.Layers.Dropout
     ( Dropout(..)
@@ -11,6 +12,7 @@ module Grenade.Layers.Dropout
 import Control.Monad.Random hiding (fromList)
 
 import Data.Validity
+import GHC.Generics
 import GHC.TypeLits
 import Grenade.Core
 
@@ -24,7 +26,7 @@ import Grenade.Utils.SumSquaredParams
 data Dropout = Dropout
     { dropoutRate :: Double
     , dropoutSeed :: Int
-    } deriving (Show)
+    } deriving (Show, Generic)
 
 instance UpdateLayer Dropout where
     type Gradient Dropout = ()

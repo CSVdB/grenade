@@ -5,6 +5,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Test.Grenade.QuickCheck.Layers.Spec
     ( layerSpec
@@ -21,6 +22,8 @@ import Data.Either
 import Data.GenValidity
 import Data.Proxy
 
+import GHC.TypeLits
+
 import Test.Hspec
 import Test.QuickCheck
 
@@ -29,8 +32,17 @@ import Test.Grenade.QuickCheck.Layers.Gen ()
 tests :: IO Bool
 tests = toTests spec
 
+type O2 = 2 * O
+
+type O2shape = 'D1 O2
+
 spec :: Spec
 spec = do
+    layerSpec
+        @(Concat Oshape (FullyConnected I O) Oshape (FullyConnected I O))
+        @Ishape
+        @O2shape
+    layerSpec @(Convolution 1 1 5 5 3 3) @('D2 29 29) @('D2 9 9)
     layerSpec @(FullyConnected I O) @Ishape @Oshape
     layerSpec @Logit @Ishape @Ishape
     layerSpec @Reshape @Image @Ishape

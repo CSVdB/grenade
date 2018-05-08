@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Core.Pad
@@ -22,6 +23,7 @@ import Data.Proxy
 import Data.Serialize
 import Data.Singletons.TypeLits
 import Data.Validity
+import GHC.Generics
 import GHC.TypeLits
 
 import Grenade.Core
@@ -36,6 +38,7 @@ import Numeric.LinearAlgebra.Static (create, extract)
 --   Pads on the X and Y dimension of an image.
 data Pad :: Nat -> Nat -> Nat -> Nat -> * where
     Pad :: Pad padLeft padTop padRight padBottom
+    deriving (Generic)
 
 instance Show (Pad padLeft padTop padRight padBottom) where
     show Pad = "Pad"

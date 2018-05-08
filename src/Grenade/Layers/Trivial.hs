@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Core.Trivial
@@ -18,6 +19,8 @@ module Grenade.Layers.Trivial
 import Data.Serialize
 import Data.Validity
 
+import GHC.Generics
+
 import Grenade.Core
 import Grenade.Utils.SumSquaredParams
 
@@ -27,7 +30,7 @@ import Grenade.Utils.SumSquaredParams
 --   graph, for a Residual network for example.
 data Trivial =
     Trivial
-    deriving (Show)
+    deriving (Show, Generic)
 
 instance Serialize Trivial where
     put _ = return ()

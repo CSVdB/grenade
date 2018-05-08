@@ -178,18 +178,28 @@ test-suite test
 
                        Test.Grenade.QuickCheck.Layers.Gen
                        Test.Grenade.QuickCheck.Layers.InstanceSpec
+                       Test.Grenade.QuickCheck.Layers.Spec
                        Test.Grenade.QuickCheck.Layers.Concat
+                       Test.Grenade.QuickCheck.Layers.Convolution
+                       Test.Grenade.QuickCheck.Layers.Crop
+                       Test.Grenade.QuickCheck.Layers.Deconvolution
+                       Test.Grenade.QuickCheck.Layers.Dropout
+                       Test.Grenade.QuickCheck.Layers.Elu
                        Test.Grenade.QuickCheck.Layers.FullyConnected
                        Test.Grenade.QuickCheck.Layers.Logit
-                       Test.Grenade.QuickCheck.Layers.Tanh
+                       Test.Grenade.QuickCheck.Layers.Merge
+                       Test.Grenade.QuickCheck.Layers.Pad
+                       Test.Grenade.QuickCheck.Layers.Pooling
+                       Test.Grenade.QuickCheck.Layers.Relu
                        Test.Grenade.QuickCheck.Layers.Reshape
+                       Test.Grenade.QuickCheck.Layers.Sinusoid
+                       Test.Grenade.QuickCheck.Layers.Softmax
+                       Test.Grenade.QuickCheck.Layers.Tanh
+                       Test.Grenade.QuickCheck.Layers.Trivial
 
                        TestUtils
 
                        Test.Grenade.QuickCheck.Gen
-
-                       Test.Grenade.QuickCheck.Layers.InstanceSpec
-                       Test.Grenade.QuickCheck.Layers.Spec
 
   if impl(ghc < 8.0)
     ghc-options:       -fno-warn-incomplete-patterns

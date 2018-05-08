@@ -2,6 +2,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Layers.Logit
@@ -17,6 +18,7 @@ module Grenade.Layers.Elu
 import Data.Serialize
 
 import Data.Validity
+import GHC.Generics hiding (S)
 import GHC.TypeLits
 import Grenade.Core
 import Grenade.Utils.SumSquaredParams
@@ -28,7 +30,7 @@ import qualified Numeric.LinearAlgebra.Static as LAS
 --   diode on every neuron individually.
 data Elu =
     Elu
-    deriving (Show)
+    deriving (Show, Generic)
 
 instance UpdateLayer Elu where
     type Gradient Elu = ()

@@ -9,6 +9,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Core.Network
@@ -26,6 +27,8 @@ import Data.Validity
 
 import Data.Singletons
 
+import GHC.Generics
+
 import Grenade.Core
 import Grenade.Utils.SumSquaredParams
 
@@ -35,6 +38,7 @@ import Grenade.Utils.SumSquaredParams
 -- shape.
 data Merge :: * -> * -> * where
     Merge :: x -> y -> Merge x y
+    deriving (Generic)
 
 instance (Show x, Show y) => Show (Merge x y) where
     show (Merge x y) = "Merge\n" ++ show x ++ "\n" ++ show y

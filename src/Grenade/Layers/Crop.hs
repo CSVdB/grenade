@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Layers.Crop
@@ -22,6 +23,7 @@ import Data.Proxy
 import Data.Serialize
 import Data.Singletons.TypeLits
 import Data.Validity
+import GHC.Generics
 import GHC.TypeLits
 
 import Grenade.Core
@@ -34,6 +36,7 @@ import Numeric.LinearAlgebra.Static (create, extract)
 -- | A cropping layer for a neural network.
 data Crop :: Nat -> Nat -> Nat -> Nat -> * where
     Crop :: Crop cropLeft cropTop cropRight cropBottom
+    deriving (Generic)
 
 instance Show (Crop cropLeft cropTop cropRight cropBottom) where
     show Crop = "Crop"

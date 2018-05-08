@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Core.Pooling
@@ -23,6 +24,7 @@ import Data.Proxy
 import Data.Serialize
 import Data.Singletons.TypeLits
 import Data.Validity
+import GHC.Generics hiding (S)
 import GHC.TypeLits
 
 import Grenade.Core
@@ -41,6 +43,7 @@ import Numeric.LinearAlgebra.Static as LAS hiding ((|||), build, toRows)
 --
 data Pooling :: Nat -> Nat -> Nat -> Nat -> * where
     Pooling :: Pooling kernelRows kernelColumns strideRows strideColumns
+    deriving (Generic)
 
 instance Show (Pooling k k' s s') where
     show Pooling = "Pooling"

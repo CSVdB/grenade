@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Core.Softmax
@@ -20,6 +21,7 @@ module Grenade.Layers.Softmax
 import Data.Serialize
 import Data.Validity
 
+import GHC.Generics hiding (S)
 import GHC.TypeLits
 import Grenade.Core
 import Grenade.Utils.SumSquaredParams
@@ -35,7 +37,7 @@ import Numeric.LinearAlgebra.Static as LAS
 --   if they need normalised probabilities.
 data Softmax =
     Softmax
-    deriving (Show)
+    deriving (Show, Generic)
 
 instance UpdateLayer Softmax where
     type Gradient Softmax = ()
