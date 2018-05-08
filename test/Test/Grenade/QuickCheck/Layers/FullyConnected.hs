@@ -5,7 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GADTs #-}
 
-module Test.Grenade.QuickCheck.Layers.FullyConnected.Gen where
+module Test.Grenade.QuickCheck.Layers.FullyConnected where
 
 import Grenade
 
@@ -37,25 +37,3 @@ instance (KnownNat i, KnownNat o) => GenUnchecked (FullyConnected i o) where
 
 instance (KnownNat i, KnownNat o) => GenValid (FullyConnected i o) where
     genValid = genUnchecked
-
-instance KnownNat n => GenUnchecked (R n) where
-    genUnchecked = do
-        let i = fromInteger $ natVal (Proxy @n)
-        v <- (SV.fromList <$> replicateM i genUnchecked :: Gen (Vector Double))
-        case create v :: Maybe (R n) of
-            Nothing -> genUnchecked
-            Just rn -> pure rn
-    shrinkUnchecked = const []
-
-instance KnownNat n => GenValid (R n) where
-    genValid = genUnchecked
---instance KnownNat n => GenUnchecked (S ('D1 n)) where
---    genUnchecked = S1D <$> genUnchecked
---    shrinkUnchecked = const []
---
---instance (KnownNat i, j) => GenUnchecked (S ('D2 i j)) where
---    genUnchecked = S2D <$> genUnchecked
---    shrinkUnchecked = const []
---
---instance GenValid (S (i :: Shape)) where
---    genValid = genUnchecked

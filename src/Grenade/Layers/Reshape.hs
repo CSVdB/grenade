@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Layers.Reshape
@@ -19,6 +20,7 @@ import Data.Serialize
 import Data.Validity
 
 import Data.Singletons.TypeLits
+import GHC.Generics
 import GHC.TypeLits
 
 import Numeric.LinearAlgebra.Data as LA (flatten)
@@ -37,7 +39,7 @@ import Grenade.Utils.SumSquaredParams
 -- or vice versa.
 data Reshape =
     Reshape
-    deriving (Show)
+    deriving (Show, Generic)
 
 instance UpdateLayer Reshape where
     type Gradient Reshape = ()

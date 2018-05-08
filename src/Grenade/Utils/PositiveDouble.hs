@@ -4,6 +4,7 @@ module Grenade.Utils.PositiveDouble
     , pMultiply
     , pExp
     , constructPositiveDouble
+    , constructPosDoubleUnsafe
     ) where
 
 import Grenade.Utils.PositiveDouble.Internal

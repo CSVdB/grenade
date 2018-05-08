@@ -129,6 +129,7 @@ library
                        Grenade.Train.Network
                        Grenade.Train.HyperParams
                        Grenade.Train.OptimiseHyper
+                       Grenade.Train.OptimiseHyper.Internal
                        Grenade.Train.HyperParamInfo
                        Grenade.Train.HyperParamInfo.Internal
 
@@ -171,9 +172,24 @@ test-suite test
                        Test.Grenade.Recurrent.Layers.LSTM
                        Test.Grenade.Recurrent.Layers.LSTM.Reference
 
-                       Test.Grenade.QuickCheck.Layers.FullyConnected.Gen
-                       Test.Grenade.QuickCheck.Layers.FullyConnected.Spec
-                       Test.Grenade.QuickCheck.Layers.FullyConnected.InstanceSpec
+                       Test.Grenade.QuickCheck.Train.OptimiseHyper.Gen
+                       Test.Grenade.QuickCheck.Train.OptimiseHyper.InstanceSpec
+                       Test.Grenade.QuickCheck.Train.OptimiseHyper.Spec
+
+                       Test.Grenade.QuickCheck.Layers.Gen
+                       Test.Grenade.QuickCheck.Layers.InstanceSpec
+                       Test.Grenade.QuickCheck.Layers.Concat
+                       Test.Grenade.QuickCheck.Layers.FullyConnected
+                       Test.Grenade.QuickCheck.Layers.Logit
+                       Test.Grenade.QuickCheck.Layers.Tanh
+                       Test.Grenade.QuickCheck.Layers.Reshape
+
+                       TestUtils
+
+                       Test.Grenade.QuickCheck.Gen
+
+                       Test.Grenade.QuickCheck.Layers.InstanceSpec
+                       Test.Grenade.QuickCheck.Layers.Spec
 
   if impl(ghc < 8.0)
     ghc-options:       -fno-warn-incomplete-patterns

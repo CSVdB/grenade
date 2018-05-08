@@ -3,6 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Layers.Tanh
@@ -19,6 +20,8 @@ import Data.Serialize
 import Data.Singletons
 import Data.Validity
 
+import GHC.Generics hiding (S)
+
 import Grenade.Core
 import Grenade.Utils.SumSquaredParams
 
@@ -26,7 +29,7 @@ import Grenade.Utils.SumSquaredParams
 --   A layer which can act between any shape of the same dimension, performing a tanh function.
 data Tanh =
     Tanh
-    deriving (Show)
+    deriving (Show, Generic)
 
 instance UpdateLayer Tanh where
     type Gradient Tanh = ()

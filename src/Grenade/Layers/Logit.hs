@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Grenade.Layers.Logit
@@ -22,6 +23,8 @@ import Data.Validity
 import Grenade.Core
 import Grenade.Utils.SumSquaredParams
 
+import GHC.Generics hiding (S)
+
 -- | A Logit layer.
 --
 --   A layer which can act between any shape of the same dimension, perfoming an sigmoid function.
@@ -29,7 +32,7 @@ import Grenade.Utils.SumSquaredParams
 --   problems.
 data Logit =
     Logit
-    deriving (Show)
+    deriving (Show, Generic)
 
 instance UpdateLayer Logit where
     type Gradient Logit = ()

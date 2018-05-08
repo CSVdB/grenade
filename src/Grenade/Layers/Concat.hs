@@ -9,6 +9,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE DeriveGeneric    #-}
 {-|
 Module      : Grenade.Layers.Concat
 Description : Concatenation layer
@@ -26,6 +27,7 @@ import           Data.Serialize
 
 import           Data.Singletons
 import           GHC.TypeLits
+import           GHC.Generics hiding (S, R)
 import           Data.Validity
 
 import           Grenade.Core
@@ -49,6 +51,7 @@ import           Grenade.Utils.SumSquaredParams
 -- and Crop layers to ensure this is the case.
 data Concat :: Shape -> * -> Shape -> * -> * where
   Concat :: x -> y -> Concat m x n y
+    deriving Generic
 
 instance (Show x, Show y) => Show (Concat m x n y) where
   show (Concat x y) = "Concat\n" ++ show x ++ "\n" ++ show y
