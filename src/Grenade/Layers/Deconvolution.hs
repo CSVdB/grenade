@@ -81,6 +81,24 @@ data Deconvolution' :: Nat -> Nat -> Nat -> Nat -> Nat -> Nat -> * where
         => !(L kernelFlattened channels) -- The kernel filter gradient
         -> Deconvolution' channels filters kernelRows kernelColumns strideRows strideColumns
 
+instance Show (Deconvolution' c f k k' s s') where
+    show (Deconvolution' a) = renderConv a
+      where
+        renderConv mm =
+            let m = extract mm
+                ky = fromIntegral $ natVal (Proxy :: Proxy k)
+                rs = LA.toColumns m
+                ms = map (take ky) $ toLists . reshape ky <$> rs
+                render n'
+                    | n' <= 0.2 = ' '
+                    | n' <= 0.4 = '.'
+                    | n' <= 0.6 = '-'
+                    | n' <= 0.8 = '='
+                    | otherwise = '#'
+                px = (fmap . fmap . fmap) render ms
+             in unlines $
+                foldl1 (zipWith (\a' b' -> a' ++ "   |   " ++ b')) $ px
+
 instance Show (Deconvolution c f k k' s s') where
     show (Deconvolution a _) = renderConv a
       where
@@ -295,6 +313,10 @@ instance ( KnownNat channels
     getSumSquaredParams (Deconvolution w _) = sumSquaredParamsFromMatrix w
     getSumSquaredParamsDelta _proxy (Deconvolution' w) =
         sumSquaredParamsFromMatrix w
+
+instance Validity (Deconvolution' c f k k' s s') where
+    validate (Deconvolution' weights) =
+        weights <?!> "weights in deconvolutional gradient"
 
 instance Validity (Deconvolution c f k k' s s') where
     validate (Deconvolution weights momenta) =

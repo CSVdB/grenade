@@ -14,7 +14,6 @@ import Grenade
 
 import Data.GenValidity
 import Data.Proxy
-import Data.Singletons
 import Data.Vector.Storable (Vector)
 import qualified Data.Vector.Storable as SV
 
@@ -25,6 +24,7 @@ import GHC.TypeLits
 import Test.QuickCheck
 
 import Test.Grenade.Gen ()
+import Test.Grenade.QuickCheck.Network ()
 
 import Numeric.LinearAlgebra.Data hiding (R)
 import Numeric.LinearAlgebra.Static
@@ -92,11 +92,3 @@ instance (KnownNat i, KnownNat j, KnownNat k, KnownNat (i * k)) =>
 instance (KnownNat i, KnownNat j, KnownNat k, KnownNat (i * k)) =>
          GenValid (S ('D3 i j k)) where
     genValid = S3D <$> genValid @(L (i * k) j)
-
-instance SingI i => GenUnchecked (Network '[] '[ i]) where
-    genUnchecked = pure (NNil :: Network '[] '[ i])
-    shrinkUnchecked = const []
--- instance (Layer x i h, Validity x, Validity (Network xs (h ': hs))) =>
---          Validity (Network (x ': xs) (i ': (h ': hs))) where
---   validate (layer :~> network) =
---       mconcat [layer <?!> "layer in network", validate network]

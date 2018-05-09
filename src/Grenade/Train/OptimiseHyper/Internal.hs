@@ -23,8 +23,8 @@ import GHC.Generics
 import Data.List.Extra (maximumOn)
 import Data.Validity
 
-import Test.QuickCheck (choose)
-import Test.QuickCheck.Checkers (gens)
+import Control.Monad
+import Control.Monad.Random.Class
 
 import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Head, Last)
@@ -48,6 +48,26 @@ data FieldToUpdate
 
 instance Validity FieldToUpdate
 
+newtype LogDouble =
+    LogDouble Double
+    deriving (Show, Eq)
+
+maxLogDouble :: LogDouble
+maxLogDouble = LogDouble 50
+
+logToDouble :: LogDouble -> Double
+logToDouble (LogDouble x) = x
+
+instance Validity LogDouble where
+    validate l@(LogDouble x) =
+        mconcat
+            [ x <?!> "The double is valid"
+            , abs x < logToDouble maxLogDouble <?!> "The double is not too big"
+            ]
+
+logDouble :: Double -> Either String LogDouble
+logDouble = prettyValidation . LogDouble
+
 nextFu :: FieldToUpdate -> FieldToUpdate
 nextFu Rate = Momentum
 nextFu Momentum = Decay
@@ -65,15 +85,18 @@ changeParams Decay params@(HyperParams lparams decayFactor) x =
         Nothing -> params
         Just newParams -> newParams
 
-genParamSets ::
-       MonadIO m
+genParams ::
+       MonadRandom m
     => FieldToUpdate
     -> PositiveDouble
     -> HyperParams
-    -> m [HyperParams]
-genParamSets fu (PositiveDouble uf) params =
-    liftIO . gens nOfValues $
-    changeParams fu params . PositiveDouble . exp <$> choose (-uf, uf)
+    -> m HyperParams
+genParams fu pbuf@(PositiveDouble uf) params = do
+    newParams <-
+        changeParams fu params . PositiveDouble . exp <$> getRandomR (-uf, uf)
+    if isValid newParams
+        then pure newParams
+        else genParams fu pbuf params
 
 updateHyperParams ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape) (m :: * -> *).
@@ -81,6 +104,7 @@ updateHyperParams ::
        , i ~ Head shapes
        , o ~ Last shapes
        , MonadIO m
+       , MonadRandom m
        , SumSquaredParams (Network layers shapes)
        )
     => Int
@@ -101,6 +125,8 @@ updateHyperParams epochs updateFactor net trainSet valSet fu params alpha = do
         newParams = updateRegulariser bestParamInfo alpha
     liftIO . putStrLn $ showAccuracy "validation" valAcc
     pure (newParams, nextFu fu, valAcc)
+  where
+    genParamSets a b c = replicateM nOfValues $ genParams a b c
 
 updateRegulariser :: HyperParamInfo -> Double -> HyperParams
 updateRegulariser info@(HyperParamInfo (HyperParams lp@LearningParameters {..} decayRate) _) alpha =

@@ -3,6 +3,8 @@ module Grenade.Train.OptimiseHyper
     , findHyperParamsWithSeveralRuns
     , HyperParamOptInfo
     , getHyperParamOptInfo
+    , LogDouble
+    , logToDouble
     ) where
 
 import Grenade.Train.OptimiseHyper.Internal

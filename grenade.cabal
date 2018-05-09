@@ -176,8 +176,14 @@ test-suite test
                        Test.Grenade.QuickCheck.Train.OptimiseHyper.InstanceSpec
                        Test.Grenade.QuickCheck.Train.OptimiseHyper.Spec
 
+                       TestUtils
+
+                       Test.Grenade.QuickCheck.Gen
+                       Test.Grenade.QuickCheck.Network
+
                        Test.Grenade.QuickCheck.Layers.Gen
                        Test.Grenade.QuickCheck.Layers.InstanceSpec
+                       Test.Grenade.QuickCheck.Layers.LayerSpec
                        Test.Grenade.QuickCheck.Layers.Spec
                        Test.Grenade.QuickCheck.Layers.Concat
                        Test.Grenade.QuickCheck.Layers.Convolution
@@ -196,10 +202,6 @@ test-suite test
                        Test.Grenade.QuickCheck.Layers.Softmax
                        Test.Grenade.QuickCheck.Layers.Tanh
                        Test.Grenade.QuickCheck.Layers.Trivial
-
-                       TestUtils
-
-                       Test.Grenade.QuickCheck.Gen
 
   if impl(ghc < 8.0)
     ghc-options:       -fno-warn-incomplete-patterns

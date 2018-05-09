@@ -8,15 +8,7 @@ import Grenade.Utils.PositiveDouble
 import qualified Numeric.LinearAlgebra as LA
 import qualified Numeric.LinearAlgebra.Static as LA
 
-import qualified Data.Vector.Storable as VS
-
 import Control.Monad.Catch
-
-import qualified Statistics.Sample as Stat
-
-import Data.Validity
-
-import Debug.Trace (traceShow)
 
 -- This is a typeclass to calculate sum w^2 and sum (delta w)^2
 -- where w are the parameters of a layer, and delta w of the gradient.
@@ -29,17 +21,14 @@ class UpdateLayer layer =>
 
 sumSquaredParamsFromMatrix :: LA.Sized Double s LA.Matrix => s -> PositiveDouble
 sumSquaredParamsFromMatrix m =
-    let s = Stat.mean . VS.map square . LA.flatten $ LA.extract m
+    let s = LA.norm_2 . LA.flatten $ LA.extract m
      in case constructPositiveDouble s of
             Right w -> w
             Left e -> error $ displayException e
 
 sumSquaredParamsFromVector :: LA.Sized Double s LA.Vector => s -> PositiveDouble
 sumSquaredParamsFromVector v =
-    let s = Stat.mean . VS.map square $ LA.extract v
+    let s = LA.norm_2 $ LA.extract v
      in case constructPositiveDouble s of
             Right w -> w
             Left e -> error $ displayException e
-
-square :: Double -> Double
-square x = constructValidUnsafe $ x * x

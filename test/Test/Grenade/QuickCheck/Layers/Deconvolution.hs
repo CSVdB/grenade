@@ -20,7 +20,30 @@ instance ( KnownNat channels
          , KnownNat kernelColumns
          , KnownNat strideRows
          , KnownNat strideColumns
-         , KnownNat ((kernelRows * kernelColumns) * filters)
+         , KnownNat (kernelRows * kernelColumns * filters)
+         ) =>
+         GenUnchecked (Deconvolution' channels filters kernelRows kernelColumns strideRows strideColumns) where
+    genUnchecked = Deconvolution' <$> genUnchecked
+    shrinkUnchecked = const []
+
+instance ( KnownNat channels
+         , KnownNat filters
+         , KnownNat kernelRows
+         , KnownNat kernelColumns
+         , KnownNat strideRows
+         , KnownNat strideColumns
+         , KnownNat (kernelRows * kernelColumns * filters)
+         ) =>
+         GenValid (Deconvolution' channels filters kernelRows kernelColumns strideRows strideColumns) where
+    genValid = Deconvolution' <$> genValid
+
+instance ( KnownNat channels
+         , KnownNat filters
+         , KnownNat kernelRows
+         , KnownNat kernelColumns
+         , KnownNat strideRows
+         , KnownNat strideColumns
+         , KnownNat (kernelRows * kernelColumns * filters)
          ) =>
          GenUnchecked (Deconvolution channels filters kernelRows kernelColumns strideRows strideColumns) where
     genUnchecked = Deconvolution <$> genUnchecked <*> genUnchecked
@@ -32,7 +55,7 @@ instance ( KnownNat channels
          , KnownNat kernelColumns
          , KnownNat strideRows
          , KnownNat strideColumns
-         , KnownNat ((kernelRows * kernelColumns) * filters)
+         , KnownNat (kernelRows * kernelColumns * filters)
          ) =>
          GenValid (Deconvolution channels filters kernelRows kernelColumns strideRows strideColumns) where
     genValid = Deconvolution <$> genValid <*> genValid

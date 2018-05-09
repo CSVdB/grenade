@@ -1,5 +1,8 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -18,6 +21,7 @@ module Grenade.Layers.Softmax
     , softmax'
     ) where
 
+import Data.Proxy
 import Data.Serialize
 import Data.Validity
 
@@ -25,6 +29,8 @@ import GHC.Generics hiding (S)
 import GHC.TypeLits
 import Grenade.Core
 import Grenade.Utils.SumSquaredParams
+
+import qualified Data.Vector.Storable as SV
 
 import Numeric.LinearAlgebra.Static as LAS
 
@@ -53,11 +59,30 @@ instance Serialize Softmax where
     put _ = return ()
     get = return Softmax
 
-softmax :: KnownNat i => LAS.R i -> LAS.R i
-softmax xs =
-    let xs' = LAS.dvmap exp xs
-        s = LAS.dot xs' 1
-     in LAS.dvmap (/ s) xs'
+-- If exp x = Infinity for a value, softmax v returns a basis vector e_n with n = maxIndex v.
+-- If all values are so small that exp x = 0, the uniform distribution is returned.
+softmax ::
+       forall i. KnownNat i
+    => LAS.R i
+    -> LAS.R i
+softmax xs
+    | natVal (Proxy :: Proxy i) == 0 = xs
+    | otherwise =
+        let xs' = LAS.dvmap exp xs
+            s = LAS.dot xs' 1
+            n = fromIntegral $ natVal (Proxy :: Proxy i)
+         in if s == 0
+                then konst $ 1 / fromIntegral n
+                else case constructValid $ LAS.dvmap (/ s) xs' of
+                         Just v -> v
+                         Nothing ->
+                             let m = SV.maxIndex $ extract xs
+                              in fromList $ fmap (oneOnEq m) [1 .. n]
+  where
+    oneOnEq x y =
+        if x == y
+            then 1
+            else 0
 
 softmax' :: KnownNat i => LAS.R i -> LAS.R i -> LAS.R i
 softmax' x grad =
