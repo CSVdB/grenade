@@ -30,7 +30,7 @@ spec :: Spec
 spec = do
     describe "softmax" $
         it "generates valid values" $
-        forAllValid $ \(v :: R O) -> testValidity (softmax v)
+        forAllValid $ \(v :: R O) -> shouldBeValid $ softmax v
     layerSpec
         @(Concat Mshape (FullyConnected I M) Mshape (FullyConnected I M))
         @Ishape

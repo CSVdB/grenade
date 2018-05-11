@@ -18,9 +18,7 @@ import qualified Test.Grenade.Recurrent.Layers.LSTM
 import qualified Test.Grenade.QuickCheck.Train.OptimiseHyper.InstanceSpec
 import qualified Test.Grenade.QuickCheck.Train.OptimiseHyper.Spec
 
-import qualified Test.Grenade.QuickCheck.Layers.InstanceSpec
-import qualified Test.Grenade.QuickCheck.Layers.Spec
-
+--import qualified Test.Grenade.QuickCheck.Layers.Spec
 import System.Exit
 import System.IO
 
@@ -31,8 +29,7 @@ main =
         , Test.Grenade.InstanceSpec.tests
         , Test.Grenade.QuickCheck.Train.OptimiseHyper.InstanceSpec.tests
         , Test.Grenade.QuickCheck.Train.OptimiseHyper.Spec.tests
-        , Test.Grenade.QuickCheck.Layers.InstanceSpec.tests
-        , Test.Grenade.QuickCheck.Layers.Spec.tests
+        --, Test.Grenade.QuickCheck.Layers.Spec.tests
         , Test.Grenade.Layers.Pooling.tests
         , Test.Grenade.Layers.Convolution.tests
         , Test.Grenade.Layers.FullyConnected.tests

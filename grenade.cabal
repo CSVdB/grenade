@@ -118,11 +118,15 @@ library
                        Grenade.Run
 
                        Grenade.Utils.OneHot
+                       Grenade.Utils.ProperFraction
                        Grenade.Utils.Accuracy
                        Grenade.Utils.SumSquaredParams
                        Grenade.Utils.ReadWrite
+                       Grenade.Utils.LogDouble
                        Grenade.Utils.PositiveDouble
                        Grenade.Utils.PositiveDouble.Internal
+                       Grenade.Utils.PositiveInt
+                       Grenade.Utils.PositiveInt.Internal
 
                        Grenade.Train.DataSet
                        Grenade.Train.Test
@@ -182,7 +186,6 @@ test-suite test
                        Test.Grenade.QuickCheck.Network
 
                        Test.Grenade.QuickCheck.Layers.Gen
-                       Test.Grenade.QuickCheck.Layers.InstanceSpec
                        Test.Grenade.QuickCheck.Layers.LayerSpec
                        Test.Grenade.QuickCheck.Layers.Spec
                        Test.Grenade.QuickCheck.Layers.Concat

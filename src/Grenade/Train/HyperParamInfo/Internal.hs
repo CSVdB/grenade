@@ -34,22 +34,24 @@ instance Validity HyperParamInfo
 
 -- This is the quotient of the sum of the weights after the last optimisation iteration
 -- and the corresponding value after the first one.
+-- Returns 1 if there are no runInfos or only one.
 quotientOfSumOfWeights :: HyperParamInfo -> PositiveDouble
 quotientOfSumOfWeights HyperParamInfo {..} =
-    let (wLast, wFirst) =
-            case runInfo of
-                (x:xs) ->
-                    case reverse xs of
-                        (y:_) -> (sizeOfWeights x, sizeOfWeights y)
-                        _ -> error "There is only one element in runinfo"
-                _ -> error "There are no runinfos"
-     in PositiveDouble $ positiveToDouble wLast / positiveToDouble wFirst
+    case runInfo of
+        (x:xs) ->
+            let wLast = sizeOfWeights x
+             in case reverse xs of
+                    (y:_) ->
+                        let wFirst = sizeOfWeights y
+                         in pDivide wLast wFirst
+                    _ -> PositiveDouble 1
+        _ -> PositiveDouble 1
 
 initHyperParamInfo :: HyperParams -> HyperParamInfo
 initHyperParamInfo param = HyperParamInfo param []
 
 updateHyperParamInfo :: RunInfo -> HyperParamInfo -> HyperParamInfo
-updateHyperParamInfo info h = h { runInfo = info : runInfo h }
+updateHyperParamInfo info h = h {runInfo = info : runInfo h}
 
 -- The info you can collect from one iteration of training (over a training
 -- data set) given a set of learningparameters.

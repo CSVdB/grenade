@@ -9,14 +9,8 @@ module Test.Grenade.QuickCheck.Layers.FullyConnected where
 
 import Grenade
 
-import Test.QuickCheck hiding (vector)
-
-import Control.Monad
 import Data.GenValidity
-import Data.Proxy
-import Data.Vector.Storable (Vector)
-import qualified Data.Vector.Storable as SV
-import GHC.TypeLits (KnownNat, natVal)
+import GHC.TypeLits (KnownNat)
 
 import Numeric.LinearAlgebra.Static
 

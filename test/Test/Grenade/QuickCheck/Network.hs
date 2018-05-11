@@ -6,8 +6,6 @@
 
 module Test.Grenade.QuickCheck.Network where
 
-import TestUtils
-
 import Grenade
 
 import Data.GenValidity

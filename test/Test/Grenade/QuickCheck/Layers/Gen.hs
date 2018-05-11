@@ -1,5 +1,6 @@
 module Test.Grenade.QuickCheck.Layers.Gen where
 
+import Test.Grenade.QuickCheck.Gen ()
 import Test.Grenade.QuickCheck.Layers.Concat ()
 import Test.Grenade.QuickCheck.Layers.Convolution ()
 import Test.Grenade.QuickCheck.Layers.Crop ()

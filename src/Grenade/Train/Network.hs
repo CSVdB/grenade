@@ -30,6 +30,8 @@ import Data.Singletons.Prelude (Head, Last)
 
 import Control.Monad.IO.Class
 
+import qualified Data.List.NonEmpty as NEL
+
 -- Train the network while printing the training, validation and test accuracy after every full run.
 trainNetworkAndPrintAccuracies ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape) (m :: * -> *).
@@ -121,10 +123,9 @@ runIterationAndGetChanges ::
     -> DataSet i o
     -> Network layers shapes
     -> (Network layers shapes, PositiveDouble)
-runIterationAndGetChanges _ [] _ =
-    error "The training set used in runIteration is empty"
-runIterationAndGetChanges params (x:xs) net0 =
-    foldl' update (trainAndGetChanges params x net0) xs
+runIterationAndGetChanges params dataset net0 =
+    foldl' update (trainAndGetChanges params (NEL.head dataset) net0) $
+    NEL.tail dataset
   where
     update (network0, currentSum) datapoint =
         mappend currentSum <$> trainAndGetChanges params datapoint network0

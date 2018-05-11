@@ -8,10 +8,11 @@ import Test.Hspec
 import Test.Grenade.Gen ()
 
 import Grenade.Core.LearningParameters
-import Grenade.Utils.Accuracy
-import Grenade.Train.HyperParams
 import Grenade.Train.HyperParamInfo
 import Grenade.Train.HyperParamInfo.Internal
+import Grenade.Utils.Accuracy (Accuracy)
+import Grenade.Utils.ProperFraction (ProperFraction)
+import Grenade.Utils.LogDouble (LogDouble)
 
 import Test.Validity
 import Test.Validity.Aeson
@@ -33,5 +34,7 @@ spec = do
     jsonSpecOnValid @PositiveDouble
     genValidSpec @HyperParamInfo
     jsonSpecOnValid @HyperParamInfo
-    genValidSpec @DecayFactor
-    jsonSpecOnValid @DecayFactor
+    genValidSpec @ProperFraction
+    jsonSpecOnValid @ProperFraction
+    genValidSpec @LogDouble
+    jsonSpecOnValid @LogDouble

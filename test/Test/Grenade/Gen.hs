@@ -7,6 +7,8 @@ import Grenade.Core.LearningParameters
 import Grenade.Train.HyperParamInfo
 import Grenade.Train.HyperParamInfo.Internal
 import Grenade.Train.HyperParams
+import Grenade.Utils.ProperFraction
+import Grenade.Utils.LogDouble
 import Grenade.Utils.PositiveDouble.Internal
 
 import Data.GenValidity
@@ -17,7 +19,8 @@ import Test.QuickCheck (choose, listOf)
 instance GenUnchecked PositiveDouble
 
 instance GenValid PositiveDouble where
-    genValid = PositiveDouble . abs <$> genValid
+    genValid =
+        fromMaybe <$> genValid <*> (constructPositiveDouble . abs <$> genValid)
 
 instance GenUnchecked LearningParameters
 
@@ -44,8 +47,19 @@ instance GenUnchecked HyperParams
 instance GenValid HyperParams where
     genValid = HyperParams <$> genValid <*> genValid
 
-instance GenUnchecked DecayFactor
+instance GenUnchecked ProperFraction
 
-instance GenValid DecayFactor where
+instance GenValid ProperFraction where
     genValid =
-        fromMaybe <$> genValid <*> (constructDecayFactor <$> choose (0, 1))
+        fromMaybe <$> genValid <*> (constructProperFraction <$> choose (0, 1))
+
+instance GenUnchecked LogDouble
+
+instance GenValid LogDouble where
+    genValid =
+        fromMaybe <$> genValid <*>
+        (eitherToMaybe . constructLogDouble <$> choose (0, maxLogDouble))
+
+eitherToMaybe :: Either a b -> Maybe b
+eitherToMaybe (Left _) = Nothing
+eitherToMaybe (Right x) = Just x

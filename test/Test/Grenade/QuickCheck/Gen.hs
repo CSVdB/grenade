@@ -29,9 +29,6 @@ import Test.Grenade.QuickCheck.Network ()
 import Numeric.LinearAlgebra.Data hiding (R)
 import Numeric.LinearAlgebra.Static
 
-valid :: Validation
-valid = Validation []
-
 instance KnownNat n => GenUnchecked (R n) where
     genUnchecked = do
         let i = fromInteger $ natVal (Proxy @n)

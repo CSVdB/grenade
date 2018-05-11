@@ -11,7 +11,7 @@ import Control.Monad.Catch
 
 newtype PositiveDouble =
     PositiveDouble Double
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Generic, Ord)
 
 instance ToJSON PositiveDouble
 
@@ -46,3 +46,6 @@ constructPosDoubleUnsafe x =
 instance Monoid PositiveDouble where
     mempty = PositiveDouble 0
     PositiveDouble x `mappend` PositiveDouble y = PositiveDouble $ x + y
+
+positiveToDouble :: PositiveDouble -> Double
+positiveToDouble (PositiveDouble x) = x

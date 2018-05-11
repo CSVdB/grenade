@@ -11,18 +11,10 @@ import GHC.TypeLits
 import Test.Hspec
 import Test.Hspec.Runner
 
-import Data.Validity
-
 toTests :: Spec -> IO Bool
 toTests spec = (== 0) . summaryFailures <$> hspecResult spec
 
-testValidity :: Validity a => a -> Expectation
-testValidity x =
-    case prettyValidation x of
-        Right _ -> pure ()
-        Left errMess -> expectationFailure errMess
-
-type Size = 28
+type Size = 4
 
 type Image = 'D2 Size Size
 

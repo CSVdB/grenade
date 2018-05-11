@@ -2,18 +2,23 @@ module Grenade.Utils.PositiveDouble
     ( PositiveDouble
     , positiveToDouble
     , pMultiply
-    , pExp
     , constructPositiveDouble
     , constructPosDoubleUnsafe
+    , pDivide
     ) where
 
 import Grenade.Utils.PositiveDouble.Internal
 
-positiveToDouble :: PositiveDouble -> Double
-positiveToDouble (PositiveDouble x) = x
+import Control.Monad.Catch
 
 pMultiply :: PositiveDouble -> PositiveDouble -> PositiveDouble
-pMultiply (PositiveDouble x) (PositiveDouble y) = PositiveDouble $ x * y
+pMultiply (PositiveDouble x) (PositiveDouble y) =
+    case constructPositiveDouble $ x * y of
+        Right z -> z
+        Left err -> error $ displayException err
 
-pExp :: PositiveDouble -> Double -> PositiveDouble
-pExp (PositiveDouble x) y = PositiveDouble $ x ** y
+pDivide :: PositiveDouble -> PositiveDouble -> PositiveDouble
+pDivide (PositiveDouble x) (PositiveDouble y) =
+    case constructPositiveDouble $ x / y of
+        Right z -> z
+        Left err -> error $ displayException err

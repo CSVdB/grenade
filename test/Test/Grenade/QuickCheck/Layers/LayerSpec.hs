@@ -11,17 +11,15 @@ module Test.Grenade.QuickCheck.Layers.LayerSpec
     ( layerSpec
     ) where
 
-import TestUtils
-
 import Grenade
 import Grenade.Utils.SumSquaredParams
 
+import Control.Monad.Random
 import Data.GenValidity
 import Data.Proxy
 import Data.Typeable
 
 import Test.Hspec
-import Test.QuickCheck
 import Test.Validity
 
 import Test.Grenade.QuickCheck.Layers.Gen ()
@@ -40,39 +38,44 @@ layerSpec ::
        , Validity (Tape x i o)
        , SumSquaredParams x
        , Typeable x
+       , Typeable (Gradient x)
        , Typeable i
        , Typeable o
        )
     => Spec
 layerSpec = do
+    genValidSpec @x
+    genValidSpec @(Gradient x)
     describeWith "createRandom" $
-        it "creates valid output" $ testValidity =<< createRandom @x
+        it "creates valid output" $
+        forAllValid $ \seed ->
+            shouldBeValid $ evalRand (createRandom @x) $ mkStdGen seed
     describeWith "runForwards" $
         it "creates valid output" $
         forAllValid $ \(inpt :: S i) ->
             forAllValid $ \(layer :: x) ->
-                testValidity (runForwards layer inpt :: (Tape x i o, S o))
+                shouldBeValid (runForwards layer inpt :: (Tape x i o, S o))
     describeWith "runBackwards" $
         it "creates valid output" $
         forAllValid $ \(tape :: Tape x i o) ->
             forAllValid $ \(layer :: x) ->
                 forAllValid $ \(outpt :: S o) ->
-                    testValidity
+                    shouldBeValid
                         (runBackwards layer tape outpt :: (Gradient x, S i))
     describeWith "runUpdate" $
         it "creates valid output" $
         forAllValid $ \(lParams :: LearningParameters) ->
             forAllValid $ \(layer :: x) ->
                 forAllValid $ \(grad :: Gradient x) ->
-                    testValidity $ runUpdate lParams layer grad
+                    shouldBeValid $ runUpdate lParams layer grad
     describeWith "getSumSquaredParams" $
         it "creates valid output" $
         forAllValid $ \(layer :: x) -> do
-            testValidity $ getSumSquaredParams layer
+            shouldBeValid $ getSumSquaredParams layer
     describeWith "getSumSquaredParamsDelta" $
         it "creates valid output" $
         forAllValid $ \(grad :: Gradient x) -> do
-            testValidity $ getSumSquaredParamsDelta (Proxy :: Proxy x) grad
+            shouldBeValid $ getSumSquaredParamsDelta (Proxy :: Proxy x) grad
   where
     layerName = show . typeRep $ Proxy @x
     typeLabels = unwords [" for layer ", layerName]
