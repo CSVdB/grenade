@@ -29,6 +29,7 @@ import           Numeric.LinearAlgebra.Static
 import           Grenade.Core
 import           Grenade.Recurrent.Core
 import           Grenade.Layers.Internal.Update
+import           Grenade.Utils.ProperFraction
 
 
 -- | Long Short Term Memory Recurrent unit
@@ -87,11 +88,11 @@ instance (KnownNat i, KnownNat o) => UpdateLayer (LSTM i o) where
     -- Utility function for updating with the momentum, gradients, and weights.
     u :: forall x ix out. (KnownNat ix, KnownNat out) => (x -> (L out ix)) -> x -> x -> x -> ((L out ix), (L out ix))
     u e (e -> weights) (e -> momentum) (e -> gradient) =
-      descendMatrix (positiveToDouble learningRate) (positiveToDouble learningMomentum) (positiveToDouble learningRegulariser) weights gradient momentum
+      descendMatrix (positiveToDouble learningRate) (properToDouble learningMomentum) (positiveToDouble learningRegulariser) weights gradient momentum
 
     v :: forall x ix. (KnownNat ix) => (x -> (R ix)) -> x -> x -> x -> ((R ix), (R ix))
     v e (e -> weights) (e -> momentum) (e -> gradient) =
-      descendVector (positiveToDouble learningRate) (positiveToDouble learningMomentum) (positiveToDouble learningRegulariser) weights gradient momentum
+      descendVector (positiveToDouble learningRate) (properToDouble learningMomentum) (positiveToDouble learningRegulariser) weights gradient momentum
 
   -- There's a lot of updates here, so to try and minimise the number of data copies
   -- we'll create a mutable bucket for each.

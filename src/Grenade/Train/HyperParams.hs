@@ -35,23 +35,22 @@ prettyPrintHyperParams (HyperParams LearningParameters {..} df) =
     fmap
         mconcat
         [ ["The learning rate is ", show $ positiveToDouble learningRate]
-        , ["The momentum is ", show $ positiveToDouble learningMomentum]
+        , ["The momentum is ", show $ properToDouble learningMomentum]
         , ["The regulariser is ", show $ positiveToDouble learningRegulariser]
-        , ["The decay factor is ", show $ decayToDouble df]
+        , ["The decay factor is ", show $ properToDouble df]
         ]
 
 createHyperParams ::
        Double -> Double -> Double -> Double -> Either String HyperParams
-createHyperParams rate momentum regulariser properFraction = do
+createHyperParams rate momentum regulariser pf = do
     df <-
-        case constructProperFraction properFraction of
+        case constructProperFraction pf of
             Left err -> Left $ displayException err
             Right dfr -> Right dfr
     HyperParams <$> createLearningParameters rate momentum regulariser <*>
         prettyValidation df
 
 decay :: HyperParams -> HyperParams
-decay (HyperParams learnParams properFraction) =
-    flip HyperParams properFraction $
-    learnParams
-        {learningRate = useDecayRate (learningRate learnParams) properFraction}
+decay (HyperParams learnParams pf) =
+    flip HyperParams pf $
+    learnParams {learningRate = useDecayRate (learningRate learnParams) pf}

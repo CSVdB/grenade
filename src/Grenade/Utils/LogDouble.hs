@@ -9,8 +9,8 @@ module Grenade.Utils.LogDouble
     , maxLogDouble
     ) where
 
-import Grenade.Utils.ProperFraction
 import Grenade.Utils.PositiveDouble.Internal
+import Grenade.Utils.ProperFraction
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Validity
@@ -20,10 +20,6 @@ import GHC.Generics
 newtype LogDouble =
     LogDouble Double
     deriving (Show, Eq, Generic)
-
-instance Bounded LogDouble where
-    minBound = LogDouble 0
-    maxBound = LogDouble maxLogDouble
 
 instance ToJSON LogDouble
 
@@ -38,13 +34,13 @@ logToDouble (LogDouble x) = x
 instance Validity LogDouble where
     validate (LogDouble x) =
         mconcat
-            [ x <?!> "The double is valid"
-            , x < maxLogDouble <?!> "The double is not too big"
-            , x >= 0 <?!> "The double is positive"
+            [ x <?!> "A LogDouble contains a valid double"
+            , x < maxLogDouble <?!> "A LogDouble is smaller than maxLogDouble"
+            , x > 0 <?!> "A LogDouble is strictly positive"
             ]
 
 decayLogDouble :: LogDouble -> ProperFraction -> LogDouble
-decayLogDouble (LogDouble x) y = LogDouble $ (*) x $ decayToDouble y
+decayLogDouble (LogDouble x) y = LogDouble $ (*) x $ properToDouble y
 
 constructLogDouble :: Double -> Either String LogDouble
 constructLogDouble = prettyValidation . LogDouble

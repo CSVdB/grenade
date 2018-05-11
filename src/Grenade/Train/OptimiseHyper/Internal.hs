@@ -15,11 +15,11 @@ import Grenade.Train.HyperParamInfo
 import Grenade.Train.HyperParamInfo.Internal
 import Grenade.Train.HyperParams
 import Grenade.Utils.Accuracy
-import Grenade.Utils.ProperFraction
 import Grenade.Utils.LogDouble
 import Grenade.Utils.PositiveDouble
 import Grenade.Utils.PositiveDouble.Internal
 import Grenade.Utils.PositiveInt
+import Grenade.Utils.ProperFraction
 import Grenade.Utils.SumSquaredParams
 
 import GHC.Generics
@@ -57,14 +57,14 @@ nextFu Momentum = Decay
 nextFu Decay = Rate
 
 changeParams :: FieldToUpdate -> HyperParams -> PositiveDouble -> HyperParams
-changeParams Rate (HyperParams lparams@LearningParameters {..} properFraction) x =
-    HyperParams lparams {learningRate = pMultiply x learningRate} properFraction
-changeParams Momentum (HyperParams lparams@LearningParameters {..} properFraction) x =
+changeParams Rate (HyperParams lparams@LearningParameters {..} pf) x =
+    HyperParams lparams {learningRate = pMultiply x learningRate} pf
+changeParams Momentum (HyperParams lparams@LearningParameters {..} pf) x =
     HyperParams
-        lparams {learningMomentum = pMultiply x learningMomentum}
-        properFraction
-changeParams Decay params@(HyperParams lparams properFraction) x =
-    case HyperParams lparams <$> dMultiply x properFraction of
+        lparams {learningMomentum = properFractionMultiply x learningMomentum}
+        pf
+changeParams Decay params@(HyperParams lparams pf) x =
+    case HyperParams lparams <$> dMultiply x pf of
         Nothing -> params
         Just newParams -> newParams
 

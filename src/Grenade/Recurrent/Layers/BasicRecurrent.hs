@@ -1,94 +1,105 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE GADTs                 #-}
-{-# LANGUAGE RecordWildCards       #-}
-{-# LANGUAGE TypeOperators         #-}
-{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleContexts      #-}
-{-# LANGUAGE UndecidableInstances  #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
 
-module Grenade.Recurrent.Layers.BasicRecurrent (
-    BasicRecurrent (..)
-  , randomBasicRecurrent
-  ) where
+module Grenade.Recurrent.Layers.BasicRecurrent
+    ( BasicRecurrent(..)
+    , randomBasicRecurrent
+    ) where
 
+import Control.Monad.Random (MonadRandom, getRandom)
 
+import Data.Singletons.TypeLits
 
-import           Control.Monad.Random ( MonadRandom, getRandom )
+import Numeric.LinearAlgebra.Static
 
-import           Data.Singletons.TypeLits
+import GHC.TypeLits
 
-import           Numeric.LinearAlgebra.Static
+import Grenade.Core
+import Grenade.Recurrent.Core
+import Grenade.Utils.ProperFraction
 
-import           GHC.TypeLits
+data BasicRecurrent :: Nat -> Nat -> * where
+    BasicRecurrent
+        :: ( KnownNat input
+           , KnownNat output
+           , KnownNat matrixCols
+           , matrixCols ~ (input + output)
+           )
+        => !(R output) -- Bias neuron weights
+        -> !(R output) -- Bias neuron momentum
+        -> !(L output matrixCols) -- Activation
+        -> !(L output matrixCols) -- Momentum
+        -> BasicRecurrent input output
 
-import           Grenade.Core
-import           Grenade.Recurrent.Core
-
-data BasicRecurrent :: Nat -- Input layer size
-                    -> Nat -- Output layer size
-                    -> * where
-  BasicRecurrent :: ( KnownNat input
-                    , KnownNat output
-                    , KnownNat matrixCols
-                    , matrixCols ~ (input + output))
-                 => !(R output)   -- Bias neuron weights
-                 -> !(R output)   -- Bias neuron momentum
-                 -> !(L output matrixCols) -- Activation
-                 -> !(L output matrixCols) -- Momentum
-                 -> BasicRecurrent input output
-
-data BasicRecurrent' :: Nat -- Input layer size
-                     -> Nat -- Output layer size
-                     -> * where
-  BasicRecurrent' :: ( KnownNat input
-                     , KnownNat output
-                     , KnownNat matrixCols
-                     , matrixCols ~ (input + output))
-                  => !(R output)   -- Bias neuron gradients
-                  -> !(L output matrixCols)
-                  -> BasicRecurrent' input output
+data BasicRecurrent' :: Nat -> Nat -> * where
+    BasicRecurrent'
+        :: ( KnownNat input
+           , KnownNat output
+           , KnownNat matrixCols
+           , matrixCols ~ (input + output)
+           )
+        => !(R output) -- Bias neuron gradients
+        -> !(L output matrixCols)
+        -> BasicRecurrent' input output
 
 instance Show (BasicRecurrent i o) where
-  show BasicRecurrent {} = "BasicRecurrent"
+    show BasicRecurrent {} = "BasicRecurrent"
 
-instance (KnownNat i, KnownNat o, KnownNat (i + o)) => UpdateLayer (BasicRecurrent i o) where
-  type Gradient (BasicRecurrent i o) = (BasicRecurrent' i o)
+instance (KnownNat i, KnownNat o, KnownNat (i + o)) =>
+         UpdateLayer (BasicRecurrent i o) where
+    type Gradient (BasicRecurrent i o) = (BasicRecurrent' i o)
+    runUpdate LearningParameters {..} (BasicRecurrent oldBias oldBiasMomentum oldActivations oldMomentum) (BasicRecurrent' biasGradient activationGradient) =
+        let pMomentum = properToDouble learningMomentum
+            pRate = positiveToDouble learningRate
+            pRegulariser = positiveToDouble learningRegulariser
+            newBiasMomentum =
+                konst pMomentum * oldBiasMomentum - konst pRate * biasGradient
+            newBias = oldBias + newBiasMomentum
+            newMomentum =
+                konst pMomentum * oldMomentum - konst pRate * activationGradient
+            regulariser = konst (pRegulariser * pRate) * oldActivations
+            newActivations = oldActivations + newMomentum - regulariser
+         in BasicRecurrent newBias newBiasMomentum newActivations newMomentum
+    createRandom = randomBasicRecurrent
 
-  runUpdate LearningParameters {..} (BasicRecurrent oldBias oldBiasMomentum oldActivations oldMomentum) (BasicRecurrent' biasGradient activationGradient) =
-    let pMomentum = positiveToDouble learningMomentum
-        pRate = positiveToDouble learningRate
-        pRegulariser = positiveToDouble learningRegulariser
-        newBiasMomentum = konst pMomentum * oldBiasMomentum - konst pRate * biasGradient
-        newBias         = oldBias + newBiasMomentum
-        newMomentum     = konst pMomentum * oldMomentum - konst pRate * activationGradient
-        regulariser     = konst (pRegulariser * pRate) * oldActivations
-        newActivations  = oldActivations + newMomentum - regulariser
-    in BasicRecurrent newBias newBiasMomentum newActivations newMomentum
+instance ( KnownNat i
+         , KnownNat o
+         , KnownNat (i + o)
+         , i <= (i + o)
+         , o ~ ((i + o) - i)
+         ) =>
+         RecurrentUpdateLayer (BasicRecurrent i o) where
+    type RecurrentShape (BasicRecurrent i o) = S ('D1 o)
 
-  createRandom = randomBasicRecurrent
-
-instance (KnownNat i, KnownNat o, KnownNat (i + o), i <= (i + o), o ~ ((i + o) - i)) => RecurrentUpdateLayer (BasicRecurrent i o) where
-  type RecurrentShape (BasicRecurrent i o) = S ('D1 o)
-
-instance (KnownNat i, KnownNat o, KnownNat (i + o), i <= (i + o), o ~ ((i + o) - i)) => RecurrentLayer (BasicRecurrent i o) ('D1 i) ('D1 o) where
-
-  type RecTape (BasicRecurrent i o) ('D1 i) ('D1 o) = (S ('D1 o), S ('D1 i))
+instance ( KnownNat i
+         , KnownNat o
+         , KnownNat (i + o)
+         , i <= (i + o)
+         , o ~ ((i + o) - i)
+         ) =>
+         RecurrentLayer (BasicRecurrent i o) ('D1 i) ('D1 o) where
+    type RecTape (BasicRecurrent i o) ('D1 i) ('D1 o) = (S ('D1 o), S ('D1 i))
   -- Do a matrix vector multiplication and return the result.
-  runRecurrentForwards (BasicRecurrent wB _ wN _) (S1D lastOutput) (S1D thisInput) =
-    let thisOutput = S1D $ wB + wN #> (thisInput # lastOutput)
-    in ((S1D lastOutput, S1D thisInput), thisOutput, thisOutput)
-
+    runRecurrentForwards (BasicRecurrent wB _ wN _) (S1D lastOutput) (S1D thisInput) =
+        let thisOutput = S1D $ wB + wN #> (thisInput # lastOutput)
+         in ((S1D lastOutput, S1D thisInput), thisOutput, thisOutput)
   -- Run a backpropogation step for a full connected layer.
-  runRecurrentBackwards (BasicRecurrent _ _ wN _) (S1D lastOutput, S1D thisInput) (S1D dRec) (S1D dEdy) =
-    let biasGradient        = (dRec + dEdy)
-        layerGrad           = (dRec + dEdy) `outer` (thisInput # lastOutput)
+    runRecurrentBackwards (BasicRecurrent _ _ wN _) (S1D lastOutput, S1D thisInput) (S1D dRec) (S1D dEdy) =
+        let biasGradient = (dRec + dEdy)
+            layerGrad = (dRec + dEdy) `outer` (thisInput # lastOutput)
         -- calcluate derivatives for next step
-        (backGrad, recGrad) = split $ tr wN #> (dRec + dEdy)
-    in  (BasicRecurrent' biasGradient layerGrad, S1D recGrad, S1D backGrad)
+            (backGrad, recGrad) = split $ tr wN #> (dRec + dEdy)
+         in (BasicRecurrent' biasGradient layerGrad, S1D recGrad, S1D backGrad)
 
-randomBasicRecurrent :: (MonadRandom m, KnownNat i, KnownNat o, KnownNat x, x ~ (i + o))
-                     => m (BasicRecurrent i o)
+randomBasicRecurrent ::
+       (MonadRandom m, KnownNat i, KnownNat o, KnownNat x, x ~ (i + o))
+    => m (BasicRecurrent i o)
 randomBasicRecurrent = do
     seed1 <- getRandom
     seed2 <- getRandom

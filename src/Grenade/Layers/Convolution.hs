@@ -40,6 +40,7 @@ import Numeric.LinearAlgebra.Static hiding ((|||), build, toRows)
 import Grenade.Core
 import Grenade.Layers.Internal.Convolution
 import Grenade.Layers.Internal.Update
+import Grenade.Utils.ProperFraction
 import Grenade.Utils.SumSquaredParams
 
 -- | A convolution layer for a neural network.
@@ -150,7 +151,7 @@ instance ( KnownNat channels
         let (newKernel, newMomentum) =
                 descendMatrix
                     (positiveToDouble learningRate)
-                    (positiveToDouble learningMomentum)
+                    (properToDouble learningMomentum)
                     (positiveToDouble learningRegulariser)
                     oldKernel
                     kernelGradient

@@ -118,6 +118,7 @@ library
                        Grenade.Run
 
                        Grenade.Utils.OneHot
+                       Grenade.Utils.ErrToEither
                        Grenade.Utils.ProperFraction
                        Grenade.Utils.Accuracy
                        Grenade.Utils.SumSquaredParams

@@ -3,6 +3,7 @@ module Grenade.Utils.PositiveDouble
     , positiveToDouble
     , pMultiply
     , constructPositiveDouble
+    , eitherPositiveDouble
     , constructPosDoubleUnsafe
     , pDivide
     ) where

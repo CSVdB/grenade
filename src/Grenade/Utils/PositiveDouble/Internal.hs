@@ -9,6 +9,8 @@ import Data.Validity
 
 import Control.Monad.Catch
 
+import Grenade.Utils.ErrToEither
+
 newtype PositiveDouble =
     PositiveDouble Double
     deriving (Show, Eq, Generic, Ord)
@@ -42,6 +44,9 @@ constructPosDoubleUnsafe x =
     case constructPositiveDouble x of
         Left err -> error $ displayException err
         Right pd -> pd
+
+eitherPositiveDouble :: Double -> Either String PositiveDouble
+eitherPositiveDouble = errToEither . constructPositiveDouble
 
 instance Monoid PositiveDouble where
     mempty = PositiveDouble 0
