@@ -9,15 +9,16 @@ License     : BSD2
 Stability   : experimental
 -}
 module Grenade.Core.LearningParameters
-    ( LearningParameters(..)
+    ( 
+-- | This module contains learning algorithm specific
+--   code. Currently, this module should be considered
+--   unstable, due to issue #26.
+    LearningParameters(..)
     , createLearningParameters
     , positiveToDouble
     , PositiveDouble
     ) where
 
--- | This module contains learning algorithm specific
---   code. Currently, this module should be considered
---   unstable, due to issue #26.
 import Grenade.Utils.PositiveDouble
 import Grenade.Utils.ProperFraction
 

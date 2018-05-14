@@ -19,12 +19,22 @@ module Grenade (
 
   , module Grenade.Train.DataSet
   , module Grenade.Run
+  , constructLogDouble
+  , constructPositiveDouble
+  , constructPositiveInt
+  , constructProperFraction
+  , accuracyM
   ) where
 
 import           Grenade.Core
 import           Grenade.Layers
 import           Grenade.Train.DataSet
 import           Grenade.Run
+import           Grenade.Utils.LogDouble
+import           Grenade.Utils.PositiveDouble
+import           Grenade.Utils.PositiveInt
+import           Grenade.Utils.ProperFraction
+import           Grenade.Utils.Accuracy
 
 {- $library
 Grenade is a purely functional deep learning library.

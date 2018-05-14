@@ -24,7 +24,10 @@ class UpdateLayer layer =>
 sumSquaredParamsFromMatrix ::
        (Show s, Validity s, LA.Sized Double s LA.Matrix) => s -> PositiveDouble
 sumSquaredParamsFromMatrix m =
-    let correctMatrix = constructValidUnsafe m
+    let correctMatrix =
+            case prettyValidation m of
+                Left err -> error $ "In sumSquaredParamsFromMatrix:\n" ++ err
+                Right x -> x
         s = LA.norm_2 . LA.flatten $ LA.extract correctMatrix
      in case constructPositiveDouble s of
             Right w -> w
@@ -33,7 +36,10 @@ sumSquaredParamsFromMatrix m =
 sumSquaredParamsFromVector ::
        (Show s, Validity s, LA.Sized Double s LA.Vector) => s -> PositiveDouble
 sumSquaredParamsFromVector v =
-    let correctVector = constructValidUnsafe v
+    let correctVector =
+            case prettyValidation v of
+                Left err -> error $ "In sumSquaredParamsFromVector:\n" ++ err
+                Right x -> x
         s = LA.norm_2 $ LA.extract correctVector
      in case constructPositiveDouble s of
             Right w -> w

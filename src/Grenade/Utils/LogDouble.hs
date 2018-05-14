@@ -41,7 +41,9 @@ instance Validity LogDouble where
 
 decayLogDouble :: LogDouble -> ProperFraction -> LogDouble
 decayLogDouble (LogDouble x) y =
-    constructValidUnsafe . LogDouble $ (*) x $ properToDouble y
+    case prettyValidation . LogDouble $ (*) x $ properToDouble y of
+        Left err -> error err
+        Right ld -> ld
 
 constructLogDouble :: Double -> Either String LogDouble
 constructLogDouble = prettyValidation . LogDouble
