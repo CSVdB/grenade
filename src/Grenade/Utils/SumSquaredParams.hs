@@ -10,6 +10,8 @@ import qualified Numeric.LinearAlgebra.Static as LA
 
 import Control.Monad.Catch
 
+import Data.Validity
+
 -- This is a typeclass to calculate sum w^2 and sum (delta w)^2
 -- where w are the parameters of a layer, and delta w of the gradient.
 -- This is used to automate optimising the learning parameters.
@@ -19,16 +21,20 @@ class UpdateLayer layer =>
     getSumSquaredParams :: layer -> PositiveDouble
     getSumSquaredParamsDelta :: proxy layer -> Gradient layer -> PositiveDouble
 
-sumSquaredParamsFromMatrix :: LA.Sized Double s LA.Matrix => s -> PositiveDouble
+sumSquaredParamsFromMatrix ::
+       (Show s, Validity s, LA.Sized Double s LA.Matrix) => s -> PositiveDouble
 sumSquaredParamsFromMatrix m =
-    let s = LA.norm_2 . LA.flatten $ LA.extract m
+    let correctMatrix = constructValidUnsafe m
+        s = LA.norm_2 . LA.flatten $ LA.extract correctMatrix
      in case constructPositiveDouble s of
             Right w -> w
             Left e -> error $ displayException e
 
-sumSquaredParamsFromVector :: LA.Sized Double s LA.Vector => s -> PositiveDouble
+sumSquaredParamsFromVector ::
+       (Show s, Validity s, LA.Sized Double s LA.Vector) => s -> PositiveDouble
 sumSquaredParamsFromVector v =
-    let s = LA.norm_2 $ LA.extract v
+    let correctVector = constructValidUnsafe v
+        s = LA.norm_2 $ LA.extract correctVector
      in case constructPositiveDouble s of
             Right w -> w
             Left e -> error $ displayException e

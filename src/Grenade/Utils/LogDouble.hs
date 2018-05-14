@@ -35,12 +35,13 @@ instance Validity LogDouble where
     validate (LogDouble x) =
         mconcat
             [ x <?!> "A LogDouble contains a valid double"
-            , x < maxLogDouble <?!> "A LogDouble is smaller than maxLogDouble"
-            , x > 0 <?!> "A LogDouble is strictly positive"
+            , x < maxLogDouble <?@> "A LogDouble is smaller than maxLogDouble"
+            , x > 0 <?@> "A LogDouble is strictly positive"
             ]
 
 decayLogDouble :: LogDouble -> ProperFraction -> LogDouble
-decayLogDouble (LogDouble x) y = LogDouble $ (*) x $ properToDouble y
+decayLogDouble (LogDouble x) y =
+    constructValidUnsafe . LogDouble $ (*) x $ properToDouble y
 
 constructLogDouble :: Double -> Either String LogDouble
 constructLogDouble = prettyValidation . LogDouble

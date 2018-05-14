@@ -14,14 +14,12 @@ import Test.Grenade.QuickCheck.Layers.Gen ()
 import Test.Grenade.QuickCheck.Train.OptimiseHyper.Gen ()
 
 import Test.Hspec
-import Test.QuickCheck
+
+--import Test.QuickCheck
 import Test.Validity
 
 tests :: IO Bool
 tests = toTests spec
-
-posIntGen :: Gen Int
-posIntGen = genValid `suchThat` (> 0)
 
 spec :: Spec
 spec = do
@@ -48,26 +46,26 @@ spec = do
         forAllValid $ \paramInfo ->
             forAllValid $ \alphaExp ->
                 shouldBeValid $ updateRegulariser paramInfo alphaExp
-    describe "updateHyperParams" $
-        it "creates valid values" $
-        forAllValid $ \seed ->
-            forAll posIntGen $ \epochs ->
-                forAllValid $ \uf ->
-                    forAllValid @NN $ \net ->
-                        forAllValid $ \train ->
-                            forAllValid $ \val ->
-                                forAllValid $ \fu ->
-                                    forAllValid $ \params ->
-                                        forAllValid $ \alphaExp ->
-                                            shouldBeValid $
-                                            evalRand
-                                                (updateHyperParams
-                                                     epochs
-                                                     uf
-                                                     net
-                                                     train
-                                                     val
-                                                     fu
-                                                     params
-                                                     alphaExp) $
-                                            mkStdGen seed
+--    describe "updateHyperParams" $
+--        it "creates valid values" $
+--        forAllValid $ \seed ->
+--            forAll posIntGen $ \epochs ->
+--                forAllValid $ \uf ->
+--                    forAllValid @NN $ \net ->
+--                        forAllValid $ \train ->
+--                            forAllValid $ \val ->
+--                                forAllValid $ \fu ->
+--                                    forAllValid $ \params ->
+--                                        forAllValid $ \alphaExp ->
+--                                            shouldBeValid $
+--                                            evalRand
+--                                                (updateHyperParams
+--                                                     epochs
+--                                                     uf
+--                                                     net
+--                                                     train
+--                                                     val
+--                                                     fu
+--                                                     params
+--                                                     alphaExp) $
+--                                            mkStdGen seed

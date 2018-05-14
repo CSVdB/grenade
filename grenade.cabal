@@ -164,7 +164,6 @@ test-suite test
 
                        Test.Grenade.Network
                        Test.Grenade.Gen
-                       Test.Grenade.InstanceSpec
                        Test.Grenade.Layers.Convolution
                        Test.Grenade.Layers.FullyConnected
                        Test.Grenade.Layers.Nonlinear
@@ -180,11 +179,16 @@ test-suite test
                        Test.Grenade.QuickCheck.Train.OptimiseHyper.Gen
                        Test.Grenade.QuickCheck.Train.OptimiseHyper.InstanceSpec
                        Test.Grenade.QuickCheck.Train.OptimiseHyper.Spec
+                       Test.Grenade.QuickCheck.Train.NetworkSpec
+                       Test.Grenade.QuickCheck.Train.HyperParamInfoSpec
 
                        TestUtils
 
                        Test.Grenade.QuickCheck.Gen
                        Test.Grenade.QuickCheck.Network
+                       Test.Grenade.QuickCheck.Utils.Gen
+                       Test.Grenade.QuickCheck.Utils.InstanceSpec
+                       Test.Grenade.QuickCheck.Utils.Spec
 
                        Test.Grenade.QuickCheck.Layers.Gen
                        Test.Grenade.QuickCheck.Layers.LayerSpec
@@ -212,6 +216,7 @@ test-suite test
 
   build-depends:
                        base                            >= 4.8         && < 5
+                     , exceptions
                      , genvalidity
                      , genvalidity-hspec
                      , genvalidity-hspec-aeson

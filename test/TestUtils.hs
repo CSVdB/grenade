@@ -10,9 +10,14 @@ import GHC.TypeLits
 
 import Test.Hspec
 import Test.Hspec.Runner
+import Test.QuickCheck
+import Test.Validity
 
 toTests :: Spec -> IO Bool
 toTests spec = (== 0) . summaryFailures <$> hspecResult spec
+
+posIntGen :: Gen Int
+posIntGen = genValid `suchThat` (> 0)
 
 type Size = 4
 

@@ -23,8 +23,8 @@ import GHC.TypeLits
 
 import Test.QuickCheck
 
-import Test.Grenade.Gen ()
 import Test.Grenade.QuickCheck.Network ()
+import Test.Grenade.QuickCheck.Utils.Gen ()
 
 import Numeric.LinearAlgebra.Data hiding (R)
 import Numeric.LinearAlgebra.Static

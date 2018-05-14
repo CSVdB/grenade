@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.Grenade.InstanceSpec where
+module Test.Grenade.QuickCheck.Utils.InstanceSpec where
 
 import Test.Hspec
 
@@ -11,8 +11,8 @@ import Grenade.Core.LearningParameters
 import Grenade.Train.HyperParamInfo
 import Grenade.Train.HyperParamInfo.Internal
 import Grenade.Utils.Accuracy (Accuracy)
-import Grenade.Utils.ProperFraction (ProperFraction)
 import Grenade.Utils.LogDouble (LogDouble)
+import Grenade.Utils.ProperFraction (ProperFraction)
 
 import Test.Validity
 import Test.Validity.Aeson
