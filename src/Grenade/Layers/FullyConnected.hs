@@ -82,15 +82,38 @@ instance (KnownNat i, KnownNat o) =>
          Layer (FullyConnected i o) ('D1 i) ('D1 o) where
     type Tape (FullyConnected i o) ('D1 i) ('D1 o) = R i
   -- Do a matrix vector multiplication and return the result.
-    runForwards (FullyConnected (FullyConnected' wB wN) _) (S1D v) =
-        (v, S1D (wB + wN #> v))
+    runForwards net@(FullyConnected (FullyConnected' wB' wN') _) (S1D v') =
+        traceShow (getSumSquaredParams net) $
+        case prettyValidation (wB', wN', v') of
+            Left err ->
+                error $
+                "This error occurs in the input of runForwards:\n" ++ err
+            Right (wB, wN, v) ->
+                case prettyValidation (v, S1D (wB + wN #> v)) of
+                    Left err ->
+                        error $
+                        "This error occurs in the output of runForwards:\n" ++
+                        err
+                    Right output -> output
   -- Run a backpropogation step for a full connected layer.
-    runBackwards (FullyConnected (FullyConnected' _ wN) _) x (S1D dEdy) =
-        let wB' = dEdy
+    runBackwards (FullyConnected (FullyConnected' _ wN') _) x' (S1D dEdy') =
+        let (wN, x, dEdy) =
+                case prettyValidation (wN', x', dEdy') of
+                    Left err ->
+                        error $
+                        "This error occurs in the input of runBackwards:\n" ++
+                        err
+                    Right z -> z
+            wB' = dEdy
             mm' = dEdy `outer` x
               -- calcluate derivatives for next step
             dWs = tr wN #> dEdy
-         in (FullyConnected' wB' mm', S1D dWs)
+            output = (FullyConnected' wB' mm', S1D dWs)
+         in case prettyValidation output of
+                Left err ->
+                    error $
+                    "This error occurs in the output of runBackwards:\n" ++ err
+                Right bla -> bla
 
 instance (KnownNat i, KnownNat o) => Serialize (FullyConnected i o) where
     put (FullyConnected (FullyConnected' b w) _) = do

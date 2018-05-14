@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Grenade.Train.Network
     ( trainNetwork
@@ -24,6 +25,7 @@ import Grenade.Utils.SumSquaredParams
 
 import Data.List
 import Data.Proxy
+import Data.Validity
 
 import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Head, Last)
@@ -127,7 +129,7 @@ runIterationAndGetChanges params dataset net0 =
     foldl' update (trainAndGetChanges params (NEL.head dataset) net0) $
     NEL.tail dataset
   where
-    update (network0, currentSum) datapoint =
+    update (!network0, !currentSum) datapoint =
         mappend currentSum <$> trainAndGetChanges params datapoint network0
 
 -- Train the network by one full run, while storing sum (delta p)^2
