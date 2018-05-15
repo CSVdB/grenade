@@ -49,8 +49,7 @@ type FCLTape = Tape FCL Ishape Mshape
 
 type Grad = Gradient FCL
 
-type NN
-     = Network '[ Reshape, FCL, Tanh, FullyConnected M O, Logit] '[ Image, Ishape, Mshape, Mshape, Oshape, Oshape]
+type NN = Network '[ Reshape, FullyConnected I O] '[ Image, Ishape, Oshape]
 
 type M2 = 2 * M
 

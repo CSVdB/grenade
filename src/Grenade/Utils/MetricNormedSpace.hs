@@ -11,9 +11,6 @@ import GHC.TypeLits
 
 import Grenade.Utils.PositiveDouble.Internal
 
--- This is a typeclass to calculate sum w^2 and sum (delta w)^2
--- where w are the parameters of a layer, and delta w of the gradient.
--- This is used to automate optimising the learning parameters.
 class MetricNormedSpace x where
     zeroM :: x
     distance :: x -> x -> PositiveDouble

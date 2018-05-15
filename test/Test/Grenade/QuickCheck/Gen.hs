@@ -36,7 +36,7 @@ instance KnownNat n => GenUnchecked (R n) where
 instance KnownNat n => GenValid (R n) where
     genValid = do
         let i = fromInteger $ natVal (Proxy @n)
-        (SV.fromList <$> replicateM i genValid) `suchThatMap` create
+        (SV.fromList <$> replicateM i (choose (0, 1))) `suchThatMap` create
 
 instance (KnownNat i, KnownNat j) => GenUnchecked (L i j) where
     genUnchecked = do
@@ -50,7 +50,7 @@ instance (KnownNat i, KnownNat j) => GenValid (L i j) where
     genValid = do
         let i' = fromInteger $ natVal (Proxy @i)
         let j' = fromInteger $ natVal (Proxy @j)
-        (reshape j' . SV.fromList <$> replicateM (i' * j') genValid :: Gen (Matrix Double)) `suchThatMap`
+        (reshape j' . SV.fromList <$> replicateM (i' * j') (choose (0, 1)) :: Gen (Matrix Double)) `suchThatMap`
             create
 
 instance SingI x => GenUnchecked (S x) where

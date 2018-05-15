@@ -11,7 +11,7 @@ import TestUtils
 
 import Test.Hspec
 
---import Test.QuickCheck
+import Test.QuickCheck
 import Test.Validity
 
 import Test.Grenade.Gen ()
@@ -20,17 +20,16 @@ tests :: IO Bool
 tests = toTests spec
 
 spec :: Spec
-spec
---    describe "getHyperParamInfo" $
---        it "produces valid output" $
---        forAll posIntGen $ \epochs ->
---            forAllValid @NN $ \net ->
---                forAllValid $ \trainSet ->
---                    forAllValid $ \valSet ->
---                        forAllValid $ \params ->
---                            shouldBeValid $
---                            getHyperParamInfo epochs net trainSet valSet params
- = do
+spec = do
+    describe "getHyperParamInfo" $
+        it "produces valid output" $
+        forAll posIntGen $ \epochs ->
+            forAllValid @NN $ \net ->
+                forAllValid $ \trainSet ->
+                    forAllValid $ \valSet ->
+                        forAllValid $ \params ->
+                            shouldBeValid $
+                            getHyperParamInfo epochs net trainSet valSet params
     describe "getAccuracy" $
         it "produces valid output" $
         forAllValid $ \h ->

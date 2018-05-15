@@ -13,6 +13,7 @@ import qualified Test.Grenade.Layers.Internal.Pooling
 
 import qualified Test.Grenade.QuickCheck.Layers.Spec
 import qualified Test.Grenade.QuickCheck.Train.HyperParamInfoSpec
+import qualified Test.Grenade.QuickCheck.Train.NetworkSpec
 import qualified Test.Grenade.QuickCheck.Train.OptimiseHyper.InstanceSpec
 import qualified Test.Grenade.QuickCheck.Train.OptimiseHyper.Spec
 import qualified Test.Grenade.QuickCheck.Utils.InstanceSpec
@@ -39,7 +40,8 @@ main =
         , Test.Grenade.Recurrent.Layers.LSTM.tests
         , Test.Grenade.QuickCheck.Utils.InstanceSpec.tests
         , Test.Grenade.QuickCheck.Utils.Spec.tests
-        , Test.Grenade.QuickCheck.Train.HyperParamInfoSpec.tests
+        , Test.Grenade.QuickCheck.Train.NetworkSpec.tests
+        --, Test.Grenade.QuickCheck.Train.HyperParamInfoSpec.tests
         ]
 
 disorderMain :: [IO Bool] -> IO ()

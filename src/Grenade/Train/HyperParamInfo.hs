@@ -24,6 +24,8 @@ import Grenade.Utils.Accuracy
 import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Head, Last)
 
+import Debug.Trace
+
 getHyperParamInfo ::
        forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape).
        ( SingI o
@@ -37,12 +39,17 @@ getHyperParamInfo ::
     -> DataSet i o
     -> HyperParams
     -> HyperParamInfo
-getHyperParamInfo 0 _ _ _ params = initHyperParamInfo params
-getHyperParamInfo n net0 trainSet valSet params =
-    updateHyperParamInfo iterRunInfo $
+getHyperParamInfo 0 _ _ _ params = trace "FINISHED" $ initHyperParamInfo params
+getHyperParamInfo n net0 trainSet valSet params
+    --trace ("sum p^2 = " ++ show (sizeOfWeights iterRunInfo)) $
+    --trace ("sum (delta p)^2 = " ++ show (changeOfWeights iterRunInfo)) $
+    --updateHyperParamInfo iterRunInfo $
+ =
+    traceShow (norm net) $
     getHyperParamInfo (n - 1) net trainSet valSet $ decay params
   where
-    (!net, !iterRunInfo) = getNetAndRunInfo params trainSet valSet net0
+    !net = runIteration params trainSet net0
+    --(!net, !iterRunInfo) = getNetAndRunInfo params trainSet valSet net0
 
 getAccuracy :: HyperParamInfo -> Accuracy
 getAccuracy (HyperParamInfo _ (x:_)) = validationAccuracy x
