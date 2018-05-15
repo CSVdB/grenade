@@ -7,7 +7,7 @@ module Grenade.Train.HyperParamInfo.Internal
     , initHyperParamInfo
     , updateHyperParamInfo
     , prettyPrintRunInfo
-    , quotientOfSumOfWeights
+    , quotientOfParamsSum
     ) where
 
 import Grenade.Train.HyperParams
@@ -35,8 +35,8 @@ instance Validity HyperParamInfo
 -- This is the quotient of the sum of the weights after the last optimisation iteration
 -- and the corresponding value after the first one.
 -- Returns 1 if there are no runInfos or only one.
-quotientOfSumOfWeights :: HyperParamInfo -> PositiveDouble
-quotientOfSumOfWeights HyperParamInfo {..} =
+quotientOfParamsSum :: HyperParamInfo -> PositiveDouble
+quotientOfParamsSum HyperParamInfo {..} =
     case runInfo of
         (x:xs) ->
             let wLast = sizeOfWeights x

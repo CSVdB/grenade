@@ -21,7 +21,6 @@ import Data.Singletons
 import Data.Validity
 
 import Grenade.Core
-import Grenade.Utils.SumSquaredParams
 
 import GHC.Generics hiding (S)
 
@@ -63,9 +62,9 @@ instance Serialize Logit where
 sigmoid :: Floating a => a -> a
 sigmoid x = 1 / (1 + exp (-x))
 
-instance SumSquaredParams Logit where
-    getSumSquaredParams _layer = mempty
-    getSumSquaredParamsDelta _proxy _gradient = mempty
+instance MetricNormedSpace Logit where
+    zeroM = Logit
+    distance _ _ = mempty
 
 instance Validity Logit where
     validate = trivialValidation

@@ -12,7 +12,6 @@ module Test.Grenade.QuickCheck.Layers.LayerSpec
     ) where
 
 import Grenade
-import Grenade.Utils.SumSquaredParams
 
 import Control.Monad.Random
 import Data.GenValidity
@@ -37,7 +36,7 @@ layerSpec ::
        , Show (Gradient x)
        , Show (Tape x i o)
        , Validity (Tape x i o)
-       , SumSquaredParams x
+       , MetricNormedSpace x
        , Typeable x
        , Typeable (Gradient x)
        , Typeable i
@@ -69,14 +68,13 @@ layerSpec = do
             forAllValid $ \(layer :: x) ->
                 forAllValid $ \(grad :: Gradient x) ->
                     shouldBeValid $ runUpdate lParams layer grad
-    describeWith "getSumSquaredParams" $
+    describeWith "norm" $
+        it "creates valid output" $ forAllValid $ shouldBeValid . norm @x
+    describeWith "distance" $
         it "creates valid output" $
-        forAllValid $ \(layer :: x) -> do
-            shouldBeValid $ getSumSquaredParams layer
-    describeWith "getSumSquaredParamsDelta" $
-        it "creates valid output" $
-        forAllValid $ \(grad :: Gradient x) -> do
-            shouldBeValid $ getSumSquaredParamsDelta (Proxy :: Proxy x) grad
+        forAllValid $ \(layer :: x) ->
+            forAllValid $ \(layer' :: x) ->
+                shouldBeValid $ distance layer layer'
   where
     layerName = show . typeRep $ Proxy @x
     typeLabels = unwords [" for layer ", layerName]

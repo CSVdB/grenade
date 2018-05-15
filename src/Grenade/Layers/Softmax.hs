@@ -28,7 +28,6 @@ import Data.Validity
 import GHC.Generics hiding (S)
 import GHC.TypeLits
 import Grenade.Core
-import Grenade.Utils.SumSquaredParams
 
 import qualified Data.Vector.Storable as SV
 
@@ -93,9 +92,9 @@ softmax' x grad =
   where
     sm = softmax x
 
-instance SumSquaredParams Softmax where
-    getSumSquaredParams _layer = mempty
-    getSumSquaredParamsDelta _proxy _gradient = mempty
+instance MetricNormedSpace Softmax where
+    zeroM = Softmax
+    distance _ _ = mempty
 
 instance Validity Softmax where
     validate = trivialValidation

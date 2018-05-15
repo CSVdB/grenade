@@ -16,8 +16,6 @@ import GHC.Generics
 import GHC.TypeLits
 import Grenade.Core
 
-import Grenade.Utils.SumSquaredParams
-
 -- Dropout layer help to reduce overfitting.
 -- Idea here is that the vector is a shape of 1s and 0s, which we multiply the input by.
 -- After backpropogation, we return a new matrix/vector, with different bits dropped out.
@@ -41,9 +39,9 @@ instance (KnownNat i) => Layer Dropout ('D1 i) ('D1 i) where
     runForwards (Dropout _ _) (S1D x) = ((), S1D x)
     runBackwards (Dropout _ _) _ (S1D x) = ((), S1D x)
 
-instance SumSquaredParams Dropout where
-    getSumSquaredParams _layer = mempty
-    getSumSquaredParamsDelta _proxy _gradient = mempty
+instance MetricNormedSpace Dropout where
+    zeroM = Dropout 0 0
+    distance _ _ = mempty
 
 instance Validity Dropout where
     validate = trivialValidation

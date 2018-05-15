@@ -121,7 +121,7 @@ library
                        Grenade.Utils.ErrToEither
                        Grenade.Utils.ProperFraction
                        Grenade.Utils.Accuracy
-                       Grenade.Utils.SumSquaredParams
+                       Grenade.Utils.MetricNormedSpace
                        Grenade.Utils.ReadWrite
                        Grenade.Utils.LogDouble
                        Grenade.Utils.PositiveDouble

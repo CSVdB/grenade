@@ -29,12 +29,12 @@ import           Data.Singletons
 import           GHC.TypeLits
 import           GHC.Generics hiding (S, R)
 import           Data.Validity
+import           Data.Monoid
 
 import           Grenade.Core
 
 import           Numeric.LinearAlgebra.Static ( row, (===), splitRows, unrow, (#), split, R )
 
-import           Grenade.Utils.SumSquaredParams
 
 -- | A Concatentating Layer.
 --
@@ -139,10 +139,9 @@ instance (Serialize a, Serialize b) => Serialize (Concat sa a sb b) where
   put (Concat a b) = put a *> put b
   get = Concat <$> get <*> get
 
-instance (SumSquaredParams x, SumSquaredParams y) => SumSquaredParams (Concat m x n y) where
-    getSumSquaredParams (Concat x y) = getSumSquaredParams x `mappend` getSumSquaredParams y
-    getSumSquaredParamsDelta _proxy (gradX, gradY) =
-        getSumSquaredParamsDelta (Proxy @x) gradX `mappend` getSumSquaredParamsDelta (Proxy @y) gradY
+instance (MetricNormedSpace x, MetricNormedSpace y) => MetricNormedSpace (Concat m x n y) where
+    zeroM = Concat zeroM zeroM
+    distance (Concat x y) (Concat x' y') = distance x x' <> distance y y'
 
 instance (Validity x, Validity y) => Validity (Concat m x n y) where
     validate (Concat x y) = mconcat

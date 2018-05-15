@@ -25,12 +25,6 @@ spec = do
             forAllValid $ \dataset ->
                 forAllValid @NN $ \net ->
                     shouldBeValid $ runIteration params dataset net
-    describe "runIterationAndchanges" $
-        it "produces valid output" $
-        forAllValid $ \params ->
-            forAllValid $ \dataset ->
-                forAllValid @NN $ \net ->
-                    shouldBeValid $ runIterationAndGetChanges params dataset net
     describe "trainNetwork" $
         it "produces valid output" $
         forAll posIntGen $ \epochs ->

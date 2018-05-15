@@ -10,7 +10,6 @@
 module Grenade.Train.Network
     ( trainNetwork
     , runIteration
-    , runIterationAndGetChanges
     , trainNetworkAndPrintAccuracies
     , getNetAndRunInfo
     ) where
@@ -21,17 +20,13 @@ import Grenade.Train.HyperParamInfo.Internal
 import Grenade.Train.HyperParams
 import Grenade.Train.Test
 import Grenade.Utils.Accuracy
-import Grenade.Utils.SumSquaredParams
 
 import Data.List
-import Data.Proxy
 
 import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Head, Last)
 
 import Control.Monad.IO.Class
-
-import qualified Data.List.NonEmpty as NEL
 
 -- Train the network while printing the training, validation and test accuracy after every full run.
 trainNetworkAndPrintAccuracies ::
@@ -40,7 +35,7 @@ trainNetworkAndPrintAccuracies ::
        , i ~ Head shapes
        , o ~ Last shapes
        , MonadIO m
-       , SumSquaredParams (Network layers shapes)
+       , MetricNormedSpace (Network layers shapes)
        )
     => Int
     -> HyperParams
@@ -82,7 +77,7 @@ getNetAndRunInfo ::
        ( SingI o
        , i ~ Head shapes
        , o ~ Last shapes
-       , SumSquaredParams (Network layers shapes)
+       , MetricNormedSpace (Network layers shapes)
        )
     => HyperParams
     -> DataSet i o
@@ -90,12 +85,12 @@ getNetAndRunInfo ::
     -> Network layers shapes
     -> (Network layers shapes, RunInfo)
 getNetAndRunInfo params trainSet valSet net0 =
-    let (net, sizeOfDeltaWeights0) =
-            runIterationAndGetChanges params trainSet net0
+    let net = runIteration params trainSet net0
         trainAcc = accuracy net trainSet
         valAcc = accuracy net valSet
-        sizeOfWeights0 = getSumSquaredParams net
-        iterRunInfo = RunInfo trainAcc valAcc sizeOfWeights0 sizeOfDeltaWeights0
+        netNorm = norm net
+        netDistance = distance net0 net
+        iterRunInfo = RunInfo trainAcc valAcc netNorm netDistance
      in (net, iterRunInfo)
 
 -- Train the network by one full run
@@ -111,42 +106,3 @@ runIteration HyperParams {..} trainSet net0 =
         (\net (inpt, outpt) -> train learningParams net inpt outpt)
         net0
         trainSet
-
--- trainAndGetChanges for a data set
-runIterationAndGetChanges ::
-       forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape).
-       ( SingI o
-       , i ~ Head shapes
-       , o ~ Last shapes
-       , SumSquaredParams (Network layers shapes)
-       )
-    => HyperParams
-    -> DataSet i o
-    -> Network layers shapes
-    -> (Network layers shapes, PositiveDouble)
-runIterationAndGetChanges params dataset net0 =
-    foldl' update (trainAndGetChanges params (NEL.head dataset) net0) $
-    NEL.tail dataset
-  where
-    update (!network0, !currentSum) datapoint =
-        mappend currentSum <$> trainAndGetChanges params datapoint network0
-
--- Train the network by one full run, while storing sum (delta p)^2
--- where the sum is over all parameters p in the network. This is a useful
--- measure for finding new learningparameters after a few runs.
-trainAndGetChanges ::
-       forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape).
-       ( SingI o
-       , i ~ Head shapes
-       , o ~ Last shapes
-       , SumSquaredParams (Network layers shapes)
-       )
-    => HyperParams
-    -> DataPoint i o
-    -> Network layers shapes
-    -> (Network layers shapes, PositiveDouble)
-trainAndGetChanges HyperParams {..} (inpt, outpt) net0 =
-    let grad = backPropagate net0 inpt outpt
-        proxy = Proxy @(Network layers shapes)
-     in ( applyUpdate learningParams net0 grad
-        , getSumSquaredParamsDelta proxy grad)

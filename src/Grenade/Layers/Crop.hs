@@ -28,7 +28,6 @@ import GHC.TypeLits
 
 import Grenade.Core
 import Grenade.Layers.Internal.Pad
-import Grenade.Utils.SumSquaredParams
 
 import Numeric.LinearAlgebra (diagBlock, konst, subMatrix)
 import Numeric.LinearAlgebra.Static (create, extract)
@@ -125,9 +124,9 @@ instance ( KnownNat cropLeft
             padded = pad ch padl padt padr padb outr outc inr inc m
          in ((), S3D . fromJust . create $ padded)
 
-instance SumSquaredParams (Crop l t r b) where
-    getSumSquaredParams _layer = mempty
-    getSumSquaredParamsDelta _proxy _gradient = mempty
+instance MetricNormedSpace (Crop l t r b) where
+    zeroM = Crop
+    distance _ _ = mempty
 
 instance Validity (Crop l t r b) where
     validate = trivialValidation

@@ -20,7 +20,6 @@ import Grenade.Utils.PositiveDouble
 import Grenade.Utils.PositiveDouble.Internal
 import Grenade.Utils.PositiveInt
 import Grenade.Utils.ProperFraction
-import Grenade.Utils.SumSquaredParams
 
 import GHC.Generics
 
@@ -85,7 +84,7 @@ genParams fu uf params = do
 
 updateRegulariser :: HyperParamInfo -> LogDouble -> HyperParams
 updateRegulariser info@(HyperParamInfo (HyperParams lp@LearningParameters {..} decayRate) _) alpha =
-    let ratio = pExp (quotientOfSumOfWeights info) alpha
+    let ratio = pExp (quotientOfParamsSum info) alpha
      in HyperParams
             lp {learningRegulariser = pMultiply learningRegulariser ratio}
             decayRate
@@ -96,7 +95,7 @@ updateHyperParams ::
        , i ~ Head shapes
        , o ~ Last shapes
        , MonadRandom m
-       , SumSquaredParams (Network layers shapes)
+       , MetricNormedSpace (Network layers shapes)
        )
     => Int
     -> LogDouble
@@ -125,7 +124,7 @@ findHyperParams ::
        , o ~ Last shapes
        , MonadIO m
        , MonadRandom m
-       , SumSquaredParams (Network layers shapes)
+       , MetricNormedSpace (Network layers shapes)
        )
     => Int
     -> Network layers shapes
@@ -239,7 +238,7 @@ findHyperParamsWithSeveralRuns ::
        , o ~ Last shapes
        , MonadIO m
        , MonadRandom m
-       , SumSquaredParams (Network layers shapes)
+       , MetricNormedSpace (Network layers shapes)
        )
     => Int
     -> Network layers shapes

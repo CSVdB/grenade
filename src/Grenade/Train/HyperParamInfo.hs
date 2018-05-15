@@ -20,7 +20,6 @@ import Grenade.Train.HyperParamInfo.Internal
 import Grenade.Train.HyperParams
 import Grenade.Train.Network
 import Grenade.Utils.Accuracy
-import Grenade.Utils.SumSquaredParams
 
 import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Head, Last)
@@ -30,7 +29,7 @@ getHyperParamInfo ::
        ( SingI o
        , i ~ Head shapes
        , o ~ Last shapes
-       , SumSquaredParams (Network layers shapes)
+       , MetricNormedSpace (Network layers shapes)
        )
     => Int
     -> Network layers shapes

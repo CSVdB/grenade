@@ -22,7 +22,6 @@ import Data.Validity
 import GHC.Generics
 
 import Grenade.Core
-import Grenade.Utils.SumSquaredParams
 
 -- | A Trivial layer.
 --
@@ -46,9 +45,9 @@ instance (a ~ b) => Layer Trivial a b where
     runForwards _ a = ((), a)
     runBackwards _ _ y = ((), y)
 
-instance SumSquaredParams Trivial where
-    getSumSquaredParams _layer = mempty
-    getSumSquaredParamsDelta _proxy _gradient = mempty
+instance MetricNormedSpace Trivial where
+    zeroM = Trivial
+    distance _ _ = mempty
 
 instance Validity Trivial where
     validate = trivialValidation

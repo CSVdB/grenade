@@ -21,7 +21,6 @@ import Data.Validity
 import GHC.Generics hiding (S)
 import GHC.TypeLits
 import Grenade.Core
-import Grenade.Utils.SumSquaredParams
 
 import qualified Numeric.LinearAlgebra.Static as LAS
 
@@ -99,9 +98,9 @@ instance (KnownNat i, KnownNat j, KnownNat k) =>
                          then 0
                          else 1)
 
-instance SumSquaredParams Relu where
-    getSumSquaredParams _layer = mempty
-    getSumSquaredParamsDelta _proxy _gradient = mempty
+instance MetricNormedSpace Relu where
+    zeroM = Relu
+    distance _ _ = mempty
 
 instance Validity Relu where
     validate = trivialValidation

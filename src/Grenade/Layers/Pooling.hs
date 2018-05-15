@@ -29,7 +29,6 @@ import GHC.TypeLits
 
 import Grenade.Core
 import Grenade.Layers.Internal.Pooling
-import Grenade.Utils.SumSquaredParams
 
 import Numeric.LinearAlgebra.Static as LAS hiding ((|||), build, toRows)
 
@@ -135,9 +134,9 @@ instance ( KnownNat kernelRows
             vs = poolBackward ch ix iy kx ky sx sy ex eo
          in ((), S3D . fromJust . create $ vs)
 
-instance SumSquaredParams (Pooling k k' s s') where
-    getSumSquaredParams _layer = mempty
-    getSumSquaredParamsDelta _proxy _gradient = mempty
+instance MetricNormedSpace (Pooling k k' s s') where
+    zeroM = Pooling
+    distance _ _ = mempty
 
 instance Validity (Pooling k k' s s') where
     validate = trivialValidation

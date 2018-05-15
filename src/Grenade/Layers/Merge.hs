@@ -22,15 +22,14 @@ module Grenade.Layers.Merge
     ( Merge(..)
     ) where
 
+import Data.Monoid
 import Data.Serialize
-import Data.Validity
-
 import Data.Singletons
+import Data.Validity
 
 import GHC.Generics
 
 import Grenade.Core
-import Grenade.Utils.SumSquaredParams
 
 -- | A Merging layer.
 --
@@ -68,13 +67,10 @@ instance (Serialize a, Serialize b) => Serialize (Merge a b) where
     put (Merge a b) = put a *> put b
     get = Merge <$> get <*> get
 
-instance (SumSquaredParams x, SumSquaredParams y) =>
-         SumSquaredParams (Merge x y) where
-    getSumSquaredParams (Merge x y) =
-        getSumSquaredParams x `mappend` getSumSquaredParams y
-    getSumSquaredParamsDelta _proxy (gradX, gradY) =
-        getSumSquaredParamsDelta (Proxy @x) gradX `mappend`
-        getSumSquaredParamsDelta (Proxy @y) gradY
+instance (MetricNormedSpace x, MetricNormedSpace y) =>
+         MetricNormedSpace (Merge x y) where
+    zeroM = Merge zeroM zeroM
+    distance (Merge x y) (Merge x' y') = distance x x' <> distance y y'
 
 instance (Validity x, Validity y) => Validity (Merge x y) where
     validate (Merge x y) =

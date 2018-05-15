@@ -41,7 +41,6 @@ import Grenade.Core
 import Grenade.Layers.Internal.Convolution
 import Grenade.Layers.Internal.Update
 import Grenade.Utils.ProperFraction
-import Grenade.Utils.SumSquaredParams
 
 -- | A convolution layer for a neural network.
 --   This uses the im2col convolution trick popularised by Caffe, which essentially turns the
@@ -312,10 +311,9 @@ instance ( KnownNat channels
          , KnownNat strideColumns
          , KnownNat (kernelRows * kernelColumns * channels)
          ) =>
-         SumSquaredParams (Convolution channels filters kernelRows kernelColumns strideRows strideColumns) where
-    getSumSquaredParams (Convolution w _) = sumSquaredParamsFromMatrix w
-    getSumSquaredParamsDelta _proxy (Convolution' w) =
-        sumSquaredParamsFromMatrix w
+         MetricNormedSpace (Convolution channels filters kernelRows kernelColumns strideRows strideColumns) where
+    zeroM = Convolution (konst 0) $ konst 0
+    distance (Convolution w _) (Convolution w' _) = distance w w'
 
 instance Validity (Convolution' c f k k' s s') where
     validate (Convolution' weights) =

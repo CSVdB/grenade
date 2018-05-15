@@ -5,6 +5,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Grenade.Layers.FullyConnected
     ( FullyConnected(..)
@@ -14,25 +16,23 @@ module Grenade.Layers.FullyConnected
 
 import Control.Monad.Random hiding (fromList)
 
+import Data.Monoid
 import Data.Proxy
 import Data.Serialize
 import Data.Singletons.TypeLits
-
 import Data.Validity
-
-import Debug.Trace (traceShow)
 
 import GHC.Generics (Generic)
 
+--import GHC.TypeLits
 import qualified Numeric.LinearAlgebra as LA
-import Numeric.LinearAlgebra.Static
+import Numeric.LinearAlgebra.Static hiding ((<>))
 
 import Grenade.Core
 
 import Grenade.Layers.Internal.Update
 
 import Grenade.Utils.ProperFraction
-import Grenade.Utils.SumSquaredParams
 
 -- | A basic fully connected (or inner product) neural network layer.
 data FullyConnected i o =
@@ -82,8 +82,7 @@ instance (KnownNat i, KnownNat o) =>
          Layer (FullyConnected i o) ('D1 i) ('D1 o) where
     type Tape (FullyConnected i o) ('D1 i) ('D1 o) = R i
   -- Do a matrix vector multiplication and return the result.
-    runForwards net@(FullyConnected (FullyConnected' wB' wN') _) (S1D v') =
-        traceShow (getSumSquaredParams net) $
+    runForwards (FullyConnected (FullyConnected' wB' wN') _) (S1D v') =
         case prettyValidation (wB', wN', v') of
             Left err ->
                 error $
@@ -144,15 +143,16 @@ randomFullyConnected = do
         mm = konst 0
     return $ FullyConnected (FullyConnected' wB wN) (FullyConnected' bm mm)
 
-instance (KnownNat i, KnownNat o) => SumSquaredParams (FullyConnected i o) where
-    getSumSquaredParams l@(FullyConnected (FullyConnected' biases activations) _momenta) =
-        let _ = traceShow "reached getSumSquaredParams" $ constructValidUnsafe l
-         in sumSquaredParamsFromVector biases `mappend`
-            sumSquaredParamsFromMatrix activations
-    getSumSquaredParamsDelta _layer g@(FullyConnected' biasDeltas actiDeltas) =
-        let _ = constructValidUnsafe g
-         in sumSquaredParamsFromVector biasDeltas `mappend`
-            sumSquaredParamsFromMatrix actiDeltas
+instance (KnownNat i, KnownNat o) =>
+         MetricNormedSpace (FullyConnected' i o) where
+    zeroM = FullyConnected' zeroM zeroM
+    distance (FullyConnected' b w) (FullyConnected' b' w') =
+        distance b b' <> distance w w'
+
+instance (KnownNat i, KnownNat o) =>
+         MetricNormedSpace (FullyConnected i o) where
+    zeroM = FullyConnected zeroM zeroM
+    distance (FullyConnected p _) (FullyConnected p' _) = distance p p'
 
 instance (KnownNat i, KnownNat o) => Validity (FullyConnected' i o)
 

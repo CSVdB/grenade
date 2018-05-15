@@ -35,11 +35,12 @@ import Data.Serialize
 import Data.Singletons
 import Data.Singletons.Prelude
 import Data.Validity
+import Data.Monoid ((<>))
 
 import Grenade.Core.Layer
 import Grenade.Core.LearningParameters
 import Grenade.Core.Shape
-import Grenade.Utils.SumSquaredParams
+import Grenade.Utils.MetricNormedSpace
 
 -- | Type of a network.
 --
@@ -190,23 +191,21 @@ instance ( CreatableNetwork sublayers subshapes
   runForwards = runNetwork
   runBackwards = runGradient
 
-instance SingI i => SumSquaredParams (Network '[] '[ i]) where
-  getSumSquaredParams NNil = mempty
-  getSumSquaredParamsDelta _proxy _gradient = mempty
+instance SingI i => MetricNormedSpace (Network '[] '[ i]) where
+  zeroM = NNil
+  distance _ _ = mempty
 
-instance ( SumSquaredParams x
+instance ( MetricNormedSpace x
          , SingI i
          , SingI h
          , Layer x i h
-         , SumSquaredParams (Network xs (h ': hs))
+         , MetricNormedSpace (Network xs (h ': hs))
          , CreatableNetwork xs (h ': hs)
          ) =>
-         SumSquaredParams (Network (x ': xs) (i ': (h ': hs))) where
-  getSumSquaredParams (layer :~> network) =
-      getSumSquaredParams layer `mappend` getSumSquaredParams network
-  getSumSquaredParamsDelta _proxy (gradLayer :/> gradNetwork) =
-      getSumSquaredParamsDelta (Proxy @x) gradLayer `mappend`
-      getSumSquaredParamsDelta (Proxy @(Network xs (h ': hs))) gradNetwork
+         MetricNormedSpace (Network (x ': xs) (i ': (h ': hs))) where
+  zeroM = zeroM :~> zeroM
+  distance (layer :~> network) (layer' :~> network') =
+    distance layer layer' <> distance network network'
 
 instance SingI i => Validity (Network '[] '[ i]) where
   validate NNil = Validation []
