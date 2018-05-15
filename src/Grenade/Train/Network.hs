@@ -25,7 +25,6 @@ import Grenade.Utils.SumSquaredParams
 
 import Data.List
 import Data.Proxy
-import Data.Validity
 
 import Data.Singletons (SingI)
 import Data.Singletons.Prelude (Head, Last)

@@ -4,8 +4,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Test.Grenade.QuickCheck.Gen where
@@ -14,6 +12,7 @@ import Grenade
 
 import Data.GenValidity
 import Data.Proxy
+import Data.Singletons
 import Data.Vector.Storable (Vector)
 import qualified Data.Vector.Storable as SV
 
@@ -67,25 +66,17 @@ instance (KnownNat i, KnownNat j) => GenValid (L i j) where
             Nothing -> genUnchecked
             Just rn -> pure rn
 
-instance KnownNat n => GenUnchecked (S ('D1 n)) where
-    genUnchecked = S1D <$> genUnchecked
+instance SingI x => GenUnchecked (S x) where
+    genUnchecked =
+        case sing :: Sing x of
+            D1Sing SNat -> S1D <$> genUnchecked
+            D2Sing SNat SNat -> S2D <$> genUnchecked
+            D3Sing SNat SNat SNat -> S3D <$> genUnchecked
     shrinkUnchecked = const []
 
-instance KnownNat n => GenValid (S ('D1 n)) where
-    genValid = S1D <$> genValid
-
-instance (KnownNat i, KnownNat j) => GenUnchecked (S ('D2 i j)) where
-    genUnchecked = S2D <$> genUnchecked
-    shrinkUnchecked = const []
-
-instance (KnownNat i, KnownNat j) => GenValid (S ('D2 i j)) where
-    genValid = S2D <$> genValid
-
-instance (KnownNat i, KnownNat j, KnownNat k, KnownNat (i * k)) =>
-         GenUnchecked (S ('D3 i j k)) where
-    genUnchecked = S3D <$> genUnchecked @(L (i * k) j)
-    shrinkUnchecked = const []
-
-instance (KnownNat i, KnownNat j, KnownNat k, KnownNat (i * k)) =>
-         GenValid (S ('D3 i j k)) where
-    genValid = S3D <$> genValid @(L (i * k) j)
+instance SingI x => GenValid (S x) where
+    genValid =
+        case sing :: Sing x of
+            D1Sing SNat -> S1D <$> genValid
+            D2Sing SNat SNat -> S2D <$> genValid
+            D3Sing SNat SNat SNat -> S3D <$> genValid

@@ -17,6 +17,7 @@ import Grenade.Utils.SumSquaredParams
 import Control.Monad.Random
 import Data.GenValidity
 import Data.Proxy
+import Data.Singletons
 import Data.Typeable
 
 import Test.Hspec
@@ -27,8 +28,8 @@ import Test.Grenade.QuickCheck.Layers.Gen ()
 layerSpec ::
        forall x (i :: Shape) (o :: Shape).
        ( Layer x i o
-       , GenValid (S i)
-       , GenValid (S o)
+       , SingI i
+       , SingI o
        , GenValid x
        , GenValid (Gradient x)
        , GenValid (Tape x i o)
