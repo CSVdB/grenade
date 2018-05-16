@@ -25,13 +25,14 @@ spec = do
             forAllValid $ \dataset ->
                 forAllValid @NN $ \net ->
                     shouldBeValid $ runIteration params dataset net
-    describe "trainNetwork" $
+    describe "trainNetwork" $ do
         it "produces valid output" $
-        forAll posIntGen $ \epochs ->
-            forAllValid $ \params ->
-                forAllValid $ \dataset ->
-                    forAllValid @NN $ \net ->
-                        shouldBeValid $ trainNetwork epochs params dataset net
+            forAll posIntGen $ \epochs ->
+                forAllValid $ \params ->
+                    forAllValid $ \dataset ->
+                        forAllValid @NN $ \net ->
+                            shouldBeValid $
+                            trainNetwork epochs params dataset net
     describe "getNetAndRunInfo" $
         it "produces valid output" $
         forAllValid $ \params ->

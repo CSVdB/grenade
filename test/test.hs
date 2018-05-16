@@ -41,7 +41,7 @@ main =
         , Test.Grenade.QuickCheck.Utils.InstanceSpec.tests
         , Test.Grenade.QuickCheck.Utils.Spec.tests
         , Test.Grenade.QuickCheck.Train.NetworkSpec.tests
-        --, Test.Grenade.QuickCheck.Train.HyperParamInfoSpec.tests
+        , Test.Grenade.QuickCheck.Train.HyperParamInfoSpec.tests
         ]
 
 disorderMain :: [IO Bool] -> IO ()

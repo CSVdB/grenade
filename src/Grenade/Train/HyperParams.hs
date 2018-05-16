@@ -20,7 +20,7 @@ import Control.Monad.Catch
 
 data HyperParams = HyperParams
     { learningParams :: !LearningParameters
-    , learningProperFraction :: !ProperFraction -- -- rate(i) = rate * properFraction^i, where rate*(i) is the rate during iteration i
+    , learningDecayRate :: !ProperFraction -- -- rate(i) = rate * properFraction^i, where rate*(i) is the rate during iteration i
     } deriving (Show, Eq, Generic)
 
 instance ToJSON HyperParams
