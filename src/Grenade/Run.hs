@@ -21,15 +21,23 @@ import Control.Monad
 run :: forall (shapes :: [Shape]) (layers :: [*]) (i :: Shape) (o :: Shape).
        (SingI o, i ~ Head shapes, o ~ Last shapes)
     => Int
+    -> Int
     -> LearningParameters
     -> IO (Network layers shapes)
     -> IO (DataSets i o)
     -> IO ()
-run epochs param networkM loadData = do
+run batchsize epochs param networkM loadData = do
     DataSets trainSet valSet testSet <- loadData
     net0 <- networkM
     void $
-        trainNetworkAndPrintAccuracies epochs param trainSet valSet testSet net0
+        trainNetworkAndPrintAccuracies
+            batchsize
+            epochs
+            param
+            trainSet
+            valSet
+            testSet
+            net0
 
 data DataSets (i :: Shape) (o :: Shape) = DataSets
     { trainDataSet :: DataSet i o
