@@ -57,7 +57,7 @@ library
                      , singletons                      >= 2.1         && < 2.4
                      , statistics
                      , time
-                     , validity
+                     , validity                        >= 0.6
                      , vector                          >= 0.11        && < 0.13
 
   ghc-options:
