@@ -40,11 +40,11 @@ library
                        aeson
                      , aeson-pretty
                      , base                            >= 4.8         && < 5
-                     , bytestring                      == 0.10.*
+                     , bytestring
                      , checkers
-                     , containers                      >= 0.5         && < 0.6
-                     , cereal                          >= 0.5         && < 0.6
-                     , deepseq                         >= 1.4         && < 1.5
+                     , containers
+                     , cereal
+                     , deepseq
                      , exceptions
                      , extra
                      , hmatrix                         == 0.18.*
@@ -57,7 +57,7 @@ library
                      , singletons                      >= 2.1         && < 2.4
                      , statistics
                      , time
-                     , validity                        >= 0.6
+                     , validity
                      , vector                          >= 0.11        && < 0.13
 
   ghc-options:

@@ -43,40 +43,89 @@ layerSpec ::
        , Typeable o
        )
     => Spec
-layerSpec = do
-    genValidSpec @x
-    genValidSpec @(Gradient x)
-    describeWith "createRandom" $
-        it "creates valid output" $
-        forAllValid $ \seed ->
-            shouldBeValid $ evalRand (createRandom @x) $ mkStdGen seed
-    describeWith "runForwards" $
-        it "creates valid output" $
-        forAllValid $ \(inpt :: S i) ->
+layerSpec =
+    describe layerName $ do
+        genValidSpec @x
+        genValidSpec @(Gradient x)
+        describe
+            (concat ["createRandom :: MonadRandom m => m ", withBrackets xName]) $
+            it "creates valid output for valid input" $
+            forAllValid $ \seed ->
+                shouldBeValid $ evalRand (createRandom @x) $ mkStdGen seed
+        describe
+            (unwords
+                 [ "runForwards ::"
+                 , xName
+                 , "->"
+                 , iShapeName
+                 , "->"
+                 , '(' : tapeName ++ ","
+                 , oShapeName ++ ")"
+                 ]) $
+            it "creates valids on valids" $
+            forAllValid $ \(inpt :: S i) ->
+                forAllValid $ \(layer :: x) ->
+                    shouldBeValid (runForwards layer inpt :: (Tape x i o, S o))
+        describe
+            (unwords
+                 [ "runBackwards ::"
+                 , xName
+                 , "->"
+                 , tapeName
+                 , "->"
+                 , oShapeName
+                 , "->"
+                 , '(' : gradName ++ ","
+                 , iShapeName ++ ")"
+                 ]) $
+            it "creates valids on valids" $
+            forAllValid $ \(tape :: Tape x i o) ->
+                forAllValid $ \(layer :: x) ->
+                    forAllValid $ \(outpt :: S o) ->
+                        shouldBeValid
+                            (runBackwards layer tape outpt :: (Gradient x, S i))
+        describe
+            (unwords
+                 [ "runUpdate :: LearningParameters ->"
+                 , xName
+                 , "->"
+                 , gradName
+                 , "->"
+                 , xName
+                 ]) $
+            it "creates valid output" $
+            forAllValid $ \(lParams :: LearningParameters) ->
+                forAllValid $ \(layer :: x) ->
+                    forAllValid $ \(grad :: Gradient x) ->
+                        shouldBeValid $ runUpdate lParams layer grad
+        describeWith (unwords ["norm ::", xName, "->", "PositiveDouble"]) $
+            it "creates valid output" $ forAllValid $ shouldBeValid . norm @x
+        describeWith
+            (unwords ["distance ::", xName, "->", xName, "->", "PositiveDouble"]) $
+            it "creates valid output" $
             forAllValid $ \(layer :: x) ->
-                shouldBeValid (runForwards layer inpt :: (Tape x i o, S o))
-    describeWith "runBackwards" $
-        it "creates valid output" $
-        forAllValid $ \(tape :: Tape x i o) ->
-            forAllValid $ \(layer :: x) ->
-                forAllValid $ \(outpt :: S o) ->
-                    shouldBeValid
-                        (runBackwards layer tape outpt :: (Gradient x, S i))
-    describeWith "runUpdate" $
-        it "creates valid output" $
-        forAllValid $ \(lParams :: LearningParameters) ->
-            forAllValid $ \(layer :: x) ->
-                forAllValid $ \(grad :: Gradient x) ->
-                    shouldBeValid $ runUpdate lParams layer grad
-    describeWith "norm" $
-        it "creates valid output" $ forAllValid $ shouldBeValid . norm @x
-    describeWith "distance" $
-        it "creates valid output" $
-        forAllValid $ \(layer :: x) ->
-            forAllValid $ \(layer' :: x) ->
-                shouldBeValid $ distance layer layer'
+                forAllValid $ \(layer' :: x) ->
+                    shouldBeValid $ distance layer layer'
   where
-    layerName = show . typeRep $ Proxy @x
+    xName = show . typeRep $ Proxy @x
+    iName = show . typeRep $ Proxy @i
+    oName = show . typeRep $ Proxy @o
+    withBrackets name =
+        case words name of
+            [_] -> name
+            _ -> '(' : name ++ ")"
+    toShapeName name = "S " ++ withBrackets name
+    iShapeName = toShapeName iName
+    oShapeName = toShapeName oName
+    layerName =
+        unwords
+            [ "Layer"
+            , withBrackets xName
+            , withBrackets iName
+            , withBrackets oName
+            ]
+    tapeName = unwords ["Tape", xName, iName, oName]
+    gradName = unwords ["Gradient", withBrackets xName]
     typeLabels = unwords [" for layer ", layerName]
     describeWith :: String -> SpecWith a -> SpecWith a
     describeWith s = describe $ s ++ typeLabels

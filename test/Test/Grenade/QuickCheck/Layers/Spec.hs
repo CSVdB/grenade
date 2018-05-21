@@ -9,6 +9,7 @@
 
 module Test.Grenade.QuickCheck.Layers.Spec
     ( tests
+    , spec
     ) where
 
 import TestUtils
