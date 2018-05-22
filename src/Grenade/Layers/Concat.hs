@@ -145,6 +145,6 @@ instance (MetricNormedSpace x, MetricNormedSpace y) => MetricNormedSpace (Concat
 
 instance (Validity x, Validity y) => Validity (Concat m x n y) where
     validate (Concat x y) = mconcat
-         [ x <?!> "first layer in cocnat"
-         , y <?!> "first layer in cocnat"
+         [ delve "first layer in concat" x
+         , delve "first layer in concat" y
          ]

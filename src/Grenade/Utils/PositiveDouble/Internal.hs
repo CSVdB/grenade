@@ -22,8 +22,8 @@ instance FromJSON PositiveDouble
 instance Validity PositiveDouble where
     validate (PositiveDouble x) =
         mconcat
-            [ x <?!> "A PositiveDouble is a valid Double"
-            , x >= 0 <?@> "A PositiveDouble is positive"
+            [ delve "A PositiveDouble is a valid Double" x
+            , declare "A PositiveDouble is positive" $ x >= 0
             ]
 
 newtype NegativePositiveDouble =

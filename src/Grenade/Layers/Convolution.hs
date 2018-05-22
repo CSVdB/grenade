@@ -317,11 +317,11 @@ instance ( KnownNat channels
 
 instance Validity (Convolution' c f k k' s s') where
     validate (Convolution' weights) =
-        mconcat [weights <?!> "weights of a gradient of a convolution"]
+        mconcat [annotate weights "weights of a gradient of a convolution"]
 
 instance Validity (Convolution c f k k' s s') where
     validate (Convolution weights momenta) =
         mconcat
-            [ weights <?!> "weights of convolution"
-            , momenta <?!> "momenta of convolution"
+            [ annotate weights "weights of convolution"
+            , annotate momenta "momenta of convolution"
             ]

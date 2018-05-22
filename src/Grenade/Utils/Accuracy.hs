@@ -36,7 +36,12 @@ instance ToJSON Accuracy
 instance FromJSON Accuracy
 
 instance Validity Accuracy where
-    validate (Accuracy x) = 0 <= x && x <= 1 <?@> "The accuracy is in [0,1]"
+    validate (Accuracy x) =
+        mconcat
+            [ delve "The accuracy is a valid double" x
+            , declare "The accuracy is positive" $ x >= 0
+            , declare "The accuracy is smaller than 1" $ x <= 1
+            ]
 
 showAccuracy :: String -> Accuracy -> String
 showAccuracy name (Accuracy x) =

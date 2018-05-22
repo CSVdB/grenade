@@ -18,7 +18,8 @@ instance ToJSON PositiveInt
 instance FromJSON PositiveInt
 
 instance Validity PositiveInt where
-    validate (PositiveInt n) = n > 0 <?@> "A PositiveInt is strictly positive"
+    validate (PositiveInt n) =
+        declare "A PositiveInt is strictly positive" $ n > 0
 
 newtype NegativePositiveInt =
     NegativePositiveInt String

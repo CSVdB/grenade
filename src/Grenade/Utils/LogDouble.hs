@@ -34,9 +34,10 @@ logToDouble (LogDouble x) = x
 instance Validity LogDouble where
     validate (LogDouble x) =
         mconcat
-            [ x <?!> "A LogDouble contains a valid double"
-            , x < maxLogDouble <?@> "A LogDouble is smaller than maxLogDouble"
-            , x > 0 <?@> "A LogDouble is strictly positive"
+            [ delve "A LogDouble contains a valid double" x
+            , declare "A LogDouble is smaller than maxLogDouble" $
+              x < maxLogDouble
+            , declare "A LogDouble is strictly positive" $ x > 0
             ]
 
 decayLogDouble :: LogDouble -> ProperFraction -> LogDouble

@@ -32,8 +32,9 @@ instance FromJSON ProperFraction
 instance Validity ProperFraction where
     validate (ProperFraction x) =
         mconcat
-            [ 0 < x <?@> "A proper fraction is strictly positive"
-            , x < 1 <?@> "A proper fraction is strictly smaller than 1"
+            [ delve "A proper fraction is a valid double" x
+            , declare "A proper fraction is strictly positive" $ x > 0
+            , declare "A proper fraction is strictly smaller than 1" $ x < 1
             ]
 
 dMultiply :: PositiveDouble -> ProperFraction -> Maybe ProperFraction

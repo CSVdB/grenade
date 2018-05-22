@@ -208,9 +208,9 @@ instance ( MetricNormedSpace x
     distance layer layer' <> distance network network'
 
 instance SingI i => Validity (Network '[] '[ i]) where
-  validate NNil = Validation []
+  validate NNil = valid
 
 instance (Layer x i h, Validity x, Validity (Network xs (h ': hs))) =>
          Validity (Network (x ': xs) (i ': (h ': hs))) where
   validate (layer :~> network) =
-      mconcat [layer <?!> "layer in network", validate network]
+      mconcat [delve "layer in network" layer, validate network]

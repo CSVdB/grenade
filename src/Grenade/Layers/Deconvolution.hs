@@ -315,11 +315,11 @@ instance ( KnownNat channels
 
 instance Validity (Deconvolution' c f k k' s s') where
     validate (Deconvolution' weights) =
-        weights <?!> "weights in deconvolutional gradient"
+        annotate weights "weights in deconvolutional gradient"
 
 instance Validity (Deconvolution c f k k' s s') where
     validate (Deconvolution weights momenta) =
         mconcat
-            [ weights <?!> "weights in deconvolutional layer"
-            , momenta <?!> "momenta in deconvolutional layer"
+            [ annotate weights "weights in deconvolutional layer"
+            , annotate momenta "momenta in deconvolutional layer"
             ]

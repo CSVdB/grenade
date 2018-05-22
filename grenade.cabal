@@ -152,7 +152,7 @@ test-suite test
 
   main-is:             test.hs
 
-  ghc-options:         -Wall -threaded -O2
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -pgmF
 
   hs-source-dirs:
                        test
@@ -211,9 +211,6 @@ test-suite test
                        Test.Grenade.QuickCheck.Layers.Tanh
                        Test.Grenade.QuickCheck.Layers.Trivial
 
-  if impl(ghc < 8.0)
-    ghc-options:       -fno-warn-incomplete-patterns
-
   build-depends:
                        base                            >= 4.8         && < 5
                      , exceptions
@@ -224,6 +221,7 @@ test-suite test
                      , hedgehog                        >= 0.5         && < 0.6
                      , hmatrix
                      , hspec
+                     , hspec-core
                      , mtl
                      , singletons
                      , text                            == 1.2.*

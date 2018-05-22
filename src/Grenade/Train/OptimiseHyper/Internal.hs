@@ -198,19 +198,9 @@ data HyperParamOptInfo = HyperParamOptInfo
     , requiredAcc :: !Accuracy
     , maxIterations :: !Natural
     , alphaInfo :: !LogDouble
-    } deriving (Show)
+    } deriving (Show, Generic)
 
-instance Validity HyperParamOptInfo where
-    validate HyperParamOptInfo {..} =
-        mconcat
-            [ updateFactor <?!> "Update factor"
-            , updateProperFraction <?!> "Update factor decay"
-            , trainSize <?!> "Training data size"
-            , valSize <?!> "Validation data size"
-            , requiredAcc <?!> "Required accuracy"
-            , maxIterations <?!> "Maximum number of iterations"
-            , alphaInfo <?!> "Alpha"
-            ]
+instance Validity HyperParamOptInfo
 
 showIfError :: Either SomeException a -> Either String a
 showIfError x =

@@ -74,4 +74,7 @@ instance (MetricNormedSpace x, MetricNormedSpace y) =>
 
 instance (Validity x, Validity y) => Validity (Merge x y) where
     validate (Merge x y) =
-        mconcat [x <?!> "first layer of Merge", y <?!> "second layer of Merge"]
+        mconcat
+            [ annotate x "first layer of Merge"
+            , annotate y "second layer of Merge"
+            ]

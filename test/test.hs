@@ -21,10 +21,17 @@ import qualified Test.Grenade.QuickCheck.Layers.Spec
 --import qualified Test.Grenade.Recurrent.Layers.LSTM
 --import System.Exit
 --import System.IO
-import Test.Hspec
+import Test.Hspec.Core.Runner
+
+config :: Config
+config =
+    defaultConfig
+        { configPrintCpuTime = False
+        -- , configColorMode = ColorAlways
+        }
 
 main :: IO ()
-main = hspec $ Test.Grenade.QuickCheck.Layers.Spec.spec
+main = hspecWith config $ Test.Grenade.QuickCheck.Layers.Spec.spec
           --Test.Grenade.Network.tests
         --, Test.Grenade.QuickCheck.Train.OptimiseHyper.InstanceSpec.tests
         --, Test.Grenade.QuickCheck.Train.OptimiseHyper.Spec.tests
