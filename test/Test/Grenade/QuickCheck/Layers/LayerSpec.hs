@@ -49,7 +49,7 @@ layerSpec =
         genValidSpec @(Gradient x)
         describe
             (concat ["createRandom :: MonadRandom m => m ", withBrackets xName]) $
-            it "creates valid output for valid input" $
+            it (concat ["creates valid \'", xName, "\'s"]) $
             forAllValid $ \seed ->
                 shouldBeValid $ evalRand (createRandom @x) $ mkStdGen seed
         describe
@@ -93,16 +93,17 @@ layerSpec =
                  , "->"
                  , xName
                  ]) $
-            it "creates valid output" $
+            it "creates valids on valids" $
             forAllValid $ \(lParams :: LearningParameters) ->
                 forAllValid $ \(layer :: x) ->
                     forAllValid $ \(grad :: Gradient x) ->
                         shouldBeValid $ runUpdate lParams layer grad
         describeWith (unwords ["norm ::", xName, "->", "PositiveDouble"]) $
-            it "creates valid output" $ forAllValid $ shouldBeValid . norm @x
+            it "creates valids on valids" $
+            forAllValid $ shouldBeValid . norm @x
         describeWith
             (unwords ["distance ::", xName, "->", xName, "->", "PositiveDouble"]) $
-            it "creates valid output" $
+            it "creates valids on valids" $
             forAllValid $ \(layer :: x) ->
                 forAllValid $ \(layer' :: x) ->
                     shouldBeValid $ distance layer layer'
